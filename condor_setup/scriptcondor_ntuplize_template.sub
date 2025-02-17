@@ -1,0 +1,28 @@
+# Files
+executable = scriptcondor_ntuplize.sh
+
+# where to save log info (change to your directory)
+output = /afs/cern.ch/user/e/ekauffma/CMSSW_14_2_2/src/EMJ/condor_setup/OUTPUTDIR/log/scriptcondor_$(Count).out
+error = /afs/cern.ch/user/e/ekauffma/CMSSW_14_2_2/src/EMJ/condor_setup/OUTPUTDIR/log/scriptcondor_$(Count).err
+log = /afs/cern.ch/user/e/ekauffma/CMSSW_14_2_2/src/EMJ/condor_setup/OUTPUTDIR/log/scriptcondor_$(Count).log
+
+arguments            = FILENAMES OUTPUTFILENAME
+
+
+transfer_input_files    = /afs/cern.ch/user/e/ekauffma/CMSSW_14_2_2/src/EMJ/condor_setup/x509_proxy, /afs/cern.ch/user/e/ekauffma/CMSSW_14_2_2/src/EMJ/EMJ_work
+# File transfer behavior
+should_transfer_files = yes
+
+# Resource requests
+#request_cpus   = 4
+request_memory = 7000MB
+request_disk   = 10000MB
++JobFlavour = "longlunch"
+getenv = True
+
+requirements = (OpSysAndVer =?= "AlmaLinux9")
+
+# Run job
+queue
+
+

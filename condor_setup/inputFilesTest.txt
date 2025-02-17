@@ -1,0 +1,2 @@
+root://cmseos.fnal.gov//store/user/ekauffma/EMJ/2022/RECO/step_RECO_s-channel_mMed-250_mDark-10_ctau-1000_unflavored-down_n-1000_part-1.root
+root://cmseos.fnal.gov//store/user/ekauffma/EMJ/2022/RECO/step_RECO_s-channel_mMed-250_mDark-10_ctau-1000_unflavored-down_n-1000_part-2.root
