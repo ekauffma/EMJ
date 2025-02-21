@@ -370,7 +370,7 @@ def prepareDataframe(df):
 
     return df
 
-def createHisto(
+def createHisto1D(
     hist_list,
     df,
     hist_name,
@@ -389,59 +389,83 @@ def createHisto(
 
     return hist_list
 
+def createHisto2D(
+    hist_list,
+    df,
+    hist_name,
+    var_x, n_bins_x, bin_low_x, bin_high_x,
+    var_y, n_bins_y, bin_low_y, bin_high_y,
+):
+
+    histoModel = ROOT.RDF.TH2DModel(
+        name=hist_name,
+        title=hist_name,
+        nbinsx=n_bins_y,
+        xlow=bin_low_y,
+        xup=bin_high_y,
+        nbinsy=n_bins_y,
+        ylow=bin_low_y,
+        yup=bin_high_y,
+    )
+
+    hist_list.append(df.Histo2D(histoModel, var_x, var_y))
+
+    return hist_list
+
+
 def bookHistos(
     df
 ):
 
     hists = []
 
-    hists = createHisto(hists, df, "leadJet_Pt", "leadJet_Pt", 200, 0, 1000)
-    hists = createHisto(hists, df, "leadJet_Eta", "leadJet_Eta", 100, -3, 3)
-    hists = createHisto(hists, df, "leadJet_Phi", "leadJet_Phi", 100, -3.14, 3.14)
-    hists = createHisto(hists, df, "leadJet_E", "leadJet_E", 200, 0, 1000)
-    hists = createHisto(hists, df, "leadJet_nConstituent", "leadJet_nConstituent", 200, 0, 200)
-    hists = createHisto(hists, df, "leadJet_avgConstituentHcalDepthEF1", "leadJet_avgConstituentHcalDepthEF1", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_avgConstituentHcalDepthEF2", "leadJet_avgConstituentHcalDepthEF2", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_avgConstituentHcalDepthEF3", "leadJet_avgConstituentHcalDepthEF3", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_avgConstituentHcalDepthEF4", "leadJet_avgConstituentHcalDepthEF4", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_avgConstituentHcalDepthEF5", "leadJet_avgConstituentHcalDepthEF5", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_avgConstituentHcalDepthEF6", "leadJet_avgConstituentHcalDepthEF6", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_avgConstituentHcalDepthEF7", "leadJet_avgConstituentHcalDepthEF7", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_pTWeightedAvgConstituentHcalDepthEF1", "leadJet_pTWeightedAvgConstituentHcalDepthEF1", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_pTWeightedAvgConstituentHcalDepthEF2", "leadJet_pTWeightedAvgConstituentHcalDepthEF2", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_pTWeightedAvgConstituentHcalDepthEF3", "leadJet_pTWeightedAvgConstituentHcalDepthEF3", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_pTWeightedAvgConstituentHcalDepthEF4", "leadJet_pTWeightedAvgConstituentHcalDepthEF4", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_pTWeightedAvgConstituentHcalDepthEF5", "leadJet_pTWeightedAvgConstituentHcalDepthEF5", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_pTWeightedAvgConstituentHcalDepthEF6", "leadJet_pTWeightedAvgConstituentHcalDepthEF6", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_pTWeightedAvgConstituentHcalDepthEF7", "leadJet_pTWeightedAvgConstituentHcalDepthEF7", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_medConstituentHcalDepthEF1", "leadJet_medConstituentHcalDepthEF1", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_medConstituentHcalDepthEF2", "leadJet_medConstituentHcalDepthEF2", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_medConstituentHcalDepthEF3", "leadJet_medConstituentHcalDepthEF3", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_medConstituentHcalDepthEF4", "leadJet_medConstituentHcalDepthEF4", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_medConstituentHcalDepthEF5", "leadJet_medConstituentHcalDepthEF5", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_medConstituentHcalDepthEF6", "leadJet_medConstituentHcalDepthEF6", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_medConstituentHcalDepthEF7", "leadJet_medConstituentHcalDepthEF7", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_medConstituentHcalDepthEF1", "leadJet_medConstituentHcalDepthEF1", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_medConstituentHcalDepthEF2", "leadJet_medConstituentHcalDepthEF2", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_medConstituentHcalDepthEF3", "leadJet_medConstituentHcalDepthEF3", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_medConstituentHcalDepthEF4", "leadJet_medConstituentHcalDepthEF4", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_medConstituentHcalDepthEF5", "leadJet_medConstituentHcalDepthEF5", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_medConstituentHcalDepthEF6", "leadJet_medConstituentHcalDepthEF6", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_medConstituentHcalDepthEF7", "leadJet_medConstituentHcalDepthEF7", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_minConstituentHcalDepthEF1", "leadJet_minConstituentHcalDepthEF1", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_minConstituentHcalDepthEF2", "leadJet_minConstituentHcalDepthEF2", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_minConstituentHcalDepthEF3", "leadJet_minConstituentHcalDepthEF3", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_minConstituentHcalDepthEF4", "leadJet_minConstituentHcalDepthEF4", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_minConstituentHcalDepthEF5", "leadJet_minConstituentHcalDepthEF5", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_minConstituentHcalDepthEF6", "leadJet_minConstituentHcalDepthEF6", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_minConstituentHcalDepthEF7", "leadJet_minConstituentHcalDepthEF7", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_maxConstituentHcalDepthEF1", "leadJet_maxConstituentHcalDepthEF1", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_maxConstituentHcalDepthEF2", "leadJet_maxConstituentHcalDepthEF2", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_maxConstituentHcalDepthEF3", "leadJet_maxConstituentHcalDepthEF3", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_maxConstituentHcalDepthEF4", "leadJet_maxConstituentHcalDepthEF4", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_maxConstituentHcalDepthEF5", "leadJet_maxConstituentHcalDepthEF5", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_maxConstituentHcalDepthEF6", "leadJet_maxConstituentHcalDepthEF6", 50, 0, 1)
-    hists = createHisto(hists, df, "leadJet_maxConstituentHcalDepthEF7", "leadJet_maxConstituentHcalDepthEF7", 50, 0, 1)
+    hists = createHisto1D(hists, df, "leadJet_Pt", "leadJet_Pt", 200, 0, 1000)
+    hists = createHisto1D(hists, df, "leadJet_Eta", "leadJet_Eta", 100, -3, 3)
+    hists = createHisto1D(hists, df, "leadJet_Phi", "leadJet_Phi", 100, -3.14, 3.14)
+    hists = createHisto1D(hists, df, "leadJet_E", "leadJet_E", 200, 0, 1000)
+    hists = createHisto1D(hists, df, "leadJet_nConstituent", "leadJet_nConstituent", 200, 0, 200)
+    hists = createHisto2D(hists, df, "leadJet_avgConstituentHcalDepthEF1", "leadJet_avgConstituentHcalDepthEF1", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_avgConstituentHcalDepthEF2", "leadJet_avgConstituentHcalDepthEF2", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_avgConstituentHcalDepthEF3", "leadJet_avgConstituentHcalDepthEF3", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_avgConstituentHcalDepthEF4", "leadJet_avgConstituentHcalDepthEF4", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_avgConstituentHcalDepthEF5", "leadJet_avgConstituentHcalDepthEF5", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_avgConstituentHcalDepthEF6", "leadJet_avgConstituentHcalDepthEF6", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_avgConstituentHcalDepthEF7", "leadJet_avgConstituentHcalDepthEF7", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_pTWeightedAvgConstituentHcalDepthEF1", "leadJet_pTWeightedAvgConstituentHcalDepthEF1", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_pTWeightedAvgConstituentHcalDepthEF2", "leadJet_pTWeightedAvgConstituentHcalDepthEF2", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_pTWeightedAvgConstituentHcalDepthEF3", "leadJet_pTWeightedAvgConstituentHcalDepthEF3", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_pTWeightedAvgConstituentHcalDepthEF4", "leadJet_pTWeightedAvgConstituentHcalDepthEF4", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_pTWeightedAvgConstituentHcalDepthEF5", "leadJet_pTWeightedAvgConstituentHcalDepthEF5", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_pTWeightedAvgConstituentHcalDepthEF6", "leadJet_pTWeightedAvgConstituentHcalDepthEF6", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_pTWeightedAvgConstituentHcalDepthEF7", "leadJet_pTWeightedAvgConstituentHcalDepthEF7", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_medConstituentHcalDepthEF1", "leadJet_medConstituentHcalDepthEF1", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_medConstituentHcalDepthEF2", "leadJet_medConstituentHcalDepthEF2", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_medConstituentHcalDepthEF3", "leadJet_medConstituentHcalDepthEF3", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_medConstituentHcalDepthEF4", "leadJet_medConstituentHcalDepthEF4", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_medConstituentHcalDepthEF5", "leadJet_medConstituentHcalDepthEF5", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_medConstituentHcalDepthEF6", "leadJet_medConstituentHcalDepthEF6", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_medConstituentHcalDepthEF7", "leadJet_medConstituentHcalDepthEF7", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_medConstituentHcalDepthEF1", "leadJet_medConstituentHcalDepthEF1", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_medConstituentHcalDepthEF2", "leadJet_medConstituentHcalDepthEF2", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_medConstituentHcalDepthEF3", "leadJet_medConstituentHcalDepthEF3", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_medConstituentHcalDepthEF4", "leadJet_medConstituentHcalDepthEF4", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_medConstituentHcalDepthEF5", "leadJet_medConstituentHcalDepthEF5", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_medConstituentHcalDepthEF6", "leadJet_medConstituentHcalDepthEF6", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_medConstituentHcalDepthEF7", "leadJet_medConstituentHcalDepthEF7", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_minConstituentHcalDepthEF1", "leadJet_minConstituentHcalDepthEF1", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_minConstituentHcalDepthEF2", "leadJet_minConstituentHcalDepthEF2", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_minConstituentHcalDepthEF3", "leadJet_minConstituentHcalDepthEF3", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_minConstituentHcalDepthEF4", "leadJet_minConstituentHcalDepthEF4", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_minConstituentHcalDepthEF5", "leadJet_minConstituentHcalDepthEF5", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_minConstituentHcalDepthEF6", "leadJet_minConstituentHcalDepthEF6", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_minConstituentHcalDepthEF7", "leadJet_minConstituentHcalDepthEF7", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_maxConstituentHcalDepthEF1", "leadJet_maxConstituentHcalDepthEF1", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_maxConstituentHcalDepthEF2", "leadJet_maxConstituentHcalDepthEF2", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_maxConstituentHcalDepthEF3", "leadJet_maxConstituentHcalDepthEF3", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_maxConstituentHcalDepthEF4", "leadJet_maxConstituentHcalDepthEF4", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_maxConstituentHcalDepthEF5", "leadJet_maxConstituentHcalDepthEF5", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_maxConstituentHcalDepthEF6", "leadJet_maxConstituentHcalDepthEF6", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, df, "leadJet_maxConstituentHcalDepthEF7", "leadJet_maxConstituentHcalDepthEF7", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
 
     return hists
 
