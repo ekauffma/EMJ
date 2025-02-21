@@ -3,15 +3,17 @@
 # Define sample names and corresponding datasets
 declare -A samples
 samples=(
-#	[QCD_Bin-PT-15to7000_RunIII2024Summer24DRPremix]="/QCD_Bin-PT-15to7000_Par-PT-flat2022_TuneCP5_13p6TeV_pythia8/RunIII2024Summer24DRPremix-140X_mcRun3_2024_realistic_v26-v2/AODSIM"
-#    ["QCD_Bin-Pt-600to800_Run3Winter25Reco_C"]="/QCD_Bin-Pt-600to800_TuneCP5_13p6TeV_pythia8/Run3Winter25Reco-142X_mcRun3_2025_realistic_v7-v2/AODSIM"
-#    [QCD_Bin-Pt-470to600_Run3Winter25Reco]="/QCD_Bin-Pt-470to600_TuneCP5_13p6TeV_pythia8/Run3Winter25Reco-142X_mcRun3_2025_realistic_v7-v2/AODSIM"
-#	[QCD_Bin-Pt-30to50_Run3Winter25Reco]="/QCD_Bin-Pt-30to50_TuneCP5_13p6TeV_pythia8/Run3Winter25Reco-142X_mcRun3_2025_realistic_v7-v3/AODSIM"
-#	[QCD_Bin-Pt-120to170_Run3Winter25Reco]="/QCD_Bin-Pt-120to170_TuneCP5_13p6TeV_pythia8/Run3Winter25Reco-142X_mcRun3_2025_realistic_v7-v2/AODSIM"
-	[QCD_Bin-Pt-50to80_Run3Winter25Reco]="/QCD_Bin-Pt-50to80_TuneCP5_13p6TeV_pythia8/Run3Winter25Reco-142X_mcRun3_2025_realistic_v7-v2/AODSIM"
-#	[QCD_Bin-Pt-170to300_Run3Winter25Reco]="/QCD_Bin-Pt-170to300_TuneCP5_13p6TeV_pythia8/Run3Winter25Reco-142X_mcRun3_2025_realistic_v7-v2/AODSIM"
-#	[QCD_Bin-Pt-300to470_Run3Winter25Reco]="/QCD_Bin-Pt-300to470_TuneCP5_13p6TeV_pythia8/Run3Winter25Reco-142X_mcRun3_2025_realistic_v7-v2/AODSIM"
-#	[QCD_Bin-Pt-80to120_Run3Winter25Reco]="/QCD_Bin-Pt-80to120_TuneCP5_13p6TeV_pythia8/Run3Winter25Reco-142X_mcRun3_2025_realistic_v7-v2/AODSIM"
+#    [QCD_Bin-PT-15to7000_RunIII2024Summer24DRPremix]="/QCD_Bin-PT-15to7000_Par-PT-flat2022_TuneCP5_13p6TeV_pythia8/RunIII2024Summer24DRPremix-140X_mcRun3_2024_realistic_v26-v2/AODSIM"
+    [QCD_Bin-Pt-600to800_Run3Winter25Reco]="/QCD_Bin-Pt-600to800_TuneCP5_13p6TeV_pythia8/Run3Winter25Reco-142X_mcRun3_2025_realistic_v7-v2/AODSIM"
+    [QCD_Bin-Pt-470to600_Run3Winter25Reco]="/QCD_Bin-Pt-470to600_TuneCP5_13p6TeV_pythia8/Run3Winter25Reco-142X_mcRun3_2025_realistic_v7-v2/AODSIM"
+    [QCD_Bin-Pt-30to50_Run3Winter25Reco]="/QCD_Bin-Pt-30to50_TuneCP5_13p6TeV_pythia8/Run3Winter25Reco-142X_mcRun3_2025_realistic_v7-v3/AODSIM"
+    [QCD_Bin-Pt-120to170_Run3Winter25Reco]="/QCD_Bin-Pt-120to170_TuneCP5_13p6TeV_pythia8/Run3Winter25Reco-142X_mcRun3_2025_realistic_v7-v2/AODSIM"
+    [QCD_Bin-Pt-50to80_Run3Winter25Reco]="/QCD_Bin-Pt-50to80_TuneCP5_13p6TeV_pythia8/Run3Winter25Reco-142X_mcRun3_2025_realistic_v7-v2/AODSIM"
+    [QCD_Bin-Pt-170to300_Run3Winter25Reco]="/QCD_Bin-Pt-170to300_TuneCP5_13p6TeV_pythia8/Run3Winter25Reco-142X_mcRun3_2025_realistic_v7-v2/AODSIM"
+    [QCD_Bin-Pt-300to470_Run3Winter25Reco]="/QCD_Bin-Pt-300to470_TuneCP5_13p6TeV_pythia8/Run3Winter25Reco-142X_mcRun3_2025_realistic_v7-v2/AODSIM"
+    [QCD_Bin-Pt-80to120_Run3Winter25Reco]="/QCD_Bin-Pt-80to120_TuneCP5_13p6TeV_pythia8/Run3Winter25Reco-142X_mcRun3_2025_realistic_v7-v2/AODSIM"
+    [QCD_Bin-Pt-800to1000]="/QCD_Bin-Pt-800to1000_TuneCP5_13p6TeV_pythia8/Run3Winter25Reco-142X_mcRun3_2025_realistic_v7-v2/AODSIM"
+    [QCD_Bin-Pt-1000]="/QCD_Bin-Pt-1000_TuneCP5_13p6TeV_pythia8/Run3Winter25Reco-142X_mcRun3_2025_realistic_v7-v2/AODSIM"
 )
 
 todaysDate=$(date +%Y%m%d)
