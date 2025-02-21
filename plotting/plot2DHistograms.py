@@ -44,24 +44,35 @@ def plotHCalDepthEFs(histograms, y_label, outdir, plot_filename, norm_method='lo
 
     hist_names = ["1", "2", "3", "4", "5", "6", "7"]
     depth_edges = list(range(8))
-    bin_edges = histograms[0].axes[0].edges()
+    bin_edges = histograms[0].axes[0].edges()[1:] # skip the first bin
     bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
     
     X, Y = np.meshgrid(depth_edges, bin_edges)
-    values_2d = np.array([hist.values() for hist in histograms]).T
+    values_2d = np.array([hist.values()[1:] for hist in histograms]).T # skip the first bin in each hist
     masked_vals = np.ma.masked_where(values_2d == 0, values_2d)
     
     sum_weights = np.sum(values_2d, axis=0)  # Sum of counts per depth
     sum_weighted_bins = np.sum(values_2d * bin_centers[:, None], axis=0)  # Weighted sum per depth
     profile = np.divide(sum_weighted_bins, sum_weights, where=(sum_weights != 0))
-    
+    profile = np.nan_to_num(profile, nan=0.0, posinf=0.0, neginf=0.0)  # Ensure no NaNs
+
     variance_numerator = np.sum(values_2d * (bin_centers[:, None] - profile) ** 2, axis=0)
     weighted_std_dev = np.sqrt(np.divide(variance_numerator, sum_weights, where=(sum_weights != 0)))
-    
-    lower_err = np.maximum(profile - weighted_std_dev, 0)
-    upper_err = np.minimum(profile + weighted_std_dev, 1)
-    asymmetric_errors = [profile - lower_err, upper_err - profile]
-    
+    weighted_std_dev = np.nan_to_num(weighted_std_dev, nan=0.0, posinf=0.0, neginf=0.0)  # Ensure valid values
+
+    profile_errors_down = np.minimum(weighted_std_dev, profile)  # Prevent going below 0
+    profile_errors_up = np.maximum(0, np.minimum(weighted_std_dev, 1 - profile))  # Prevent exceeding 1
+
+    asymmetric_errors = [profile_errors_down, profile_errors_up]
+
+    # Ensure `yerr` contains no negative or NaN values
+    if np.any(profile_errors_down < 0) or np.any(profile_errors_up < 0):
+        print("Profile Errors Down:", profile_errors_down)
+        print("Profile Errors Up:", profile_errors_up)
+        print("Profile:", profile)
+        print("Weighted Std Dev:", weighted_std_dev)
+        raise ValueError("Negative errors detected after clipping!")
+
     fig, axs = plt.subplots(2, 1, figsize=(10, 12),
                             gridspec_kw={'height_ratios': [3, 1]},
                             sharex=True)

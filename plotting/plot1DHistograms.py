@@ -17,14 +17,17 @@ import ROOT
 
 # uncomment those you want plotted (make sure they have associated colors and names in the subsequent dictionaries)
 inputFileDict = {
-    "QCD_Bin-Pt-30to50": "histograms/histograms_QCD_Bin-Pt-30to50.root",
- #   "QCD_Bin-Pt-50to80": "histograms/histograms_QCD_Bin-Pt-50to80.root",
-    "QCD_Bin-Pt-80to120": "histograms/histograms_QCD_Bin-Pt-80to120.root",
-    "QCD_Bin-Pt-120to170": "histograms/histograms_QCD_Bin-Pt-120to170.root",
-    "QCD_Bin-Pt-170to300": "histograms/histograms_QCD_Bin-Pt-170to300.root",
-    "QCD_Bin-Pt-300to470": "histograms/histograms_QCD_Bin-Pt-300to470.root",
-    "QCD_Bin-Pt-470to600": "histograms/histograms_QCD_Bin-Pt-470to600.root",
-    "QCD_Bin-Pt-600to800": "histograms/histograms_QCD_Bin-Pt-600to800.root",
+    "QCD_Combined": "histograms/histograms_QCD_Combined.root",
+#    "QCD_Bin-Pt-30to50": "histograms/histograms_QCD_Bin-Pt-30to50.root",
+#    "QCD_Bin-Pt-50to80": "histograms/histograms_QCD_Bin-Pt-50to80.root",
+#    "QCD_Bin-Pt-80to120": "histograms/histograms_QCD_Bin-Pt-80to120.root",
+#    "QCD_Bin-Pt-120to170": "histograms/histograms_QCD_Bin-Pt-120to170.root",
+#    "QCD_Bin-Pt-170to300": "histograms/histograms_QCD_Bin-Pt-170to300.root",
+#    "QCD_Bin-Pt-300to470": "histograms/histograms_QCD_Bin-Pt-300to470.root",
+#    "QCD_Bin-Pt-470to600": "histograms/histograms_QCD_Bin-Pt-470to600.root",
+#    "QCD_Bin-Pt-600to800": "histograms/histograms_QCD_Bin-Pt-600to800.root",
+#    "QCD_Bin-Pt-800to1000": "histograms/histograms_QCD_Bin-Pt-800to1000.root",
+#    "QCD_Bin-Pt-1000": "histograms/histograms_QCD_Bin-Pt-1000.root",
 #    "EMJ_s-channel_mMed-100_mDark-10_ctau-1000_unflavored-down": "histograms/histograms_EMJ_s-channel_mMed-100_mDark-10_ctau-1000_unflavored-down.root",
 #    "EMJ_s-channel_mMed-100_mDark-10_ctau-100_unflavored-down": "histograms/histograms_EMJ_s-channel_mMed-100_mDark-10_ctau-100_unflavored-down.root",
 #    "EMJ_s-channel_mMed-100_mDark-10_ctau-1_unflavored-down": "histograms/histograms_EMJ_s-channel_mMed-100_mDark-10_ctau-1_unflavored-down.root",
@@ -55,15 +58,16 @@ inputFileDict = {
 #    "EMJ_s-channel_mMed-1000_mDark-20_ctau-1000_unflavored-down": "histograms/histograms_EMJ_s-channel_mMed-1000_mDark-20_ctau-1000_unflavored-down.root",
 #    "EMJ_s-channel_mMed-1000_mDark-20_ctau-100_unflavored-down": "histograms/histograms_EMJ_s-channel_mMed-1000_mDark-20_ctau-100_unflavored-down.root",
 #    "EMJ_s-channel_mMed-1000_mDark-20_ctau-1_unflavored-down": "histograms/histograms_EMJ_s-channel_mMed-1000_mDark-20_ctau-1_unflavored-down.root",
-#    "EMJ_s-channel_mMed-1500_mDark-10_ctau-1000_unflavored-down": "histograms/histograms_EMJ_s-channel_mMed-1500_mDark-10_ctau-1000_unflavored-down.root",
-#    "EMJ_s-channel_mMed-1500_mDark-10_ctau-100_unflavored-down": "histograms/histograms_EMJ_s-channel_mMed-1500_mDark-10_ctau-100_unflavored-down.root",
-#    "EMJ_s-channel_mMed-1500_mDark-10_ctau-1_unflavored-down": "histograms/histograms_EMJ_s-channel_mMed-1500_mDark-10_ctau-1_unflavored-down.root",
-#    "EMJ_s-channel_mMed-1500_mDark-20_ctau-1000_unflavored-down": "histograms/histograms_EMJ_s-channel_mMed-1500_mDark-20_ctau-1000_unflavored-down.root",
-#    "EMJ_s-channel_mMed-1500_mDark-20_ctau-100_unflavored-down": "histograms/histograms_EMJ_s-channel_mMed-1500_mDark-20_ctau-100_unflavored-down.root",
-#    "EMJ_s-channel_mMed-1500_mDark-20_ctau-1_unflavored-down": "histograms/histograms_EMJ_s-channel_mMed-1500_mDark-20_ctau-1_unflavored-down.root",
+    "EMJ_s-channel_mMed-1500_mDark-10_ctau-1000_unflavored-down": "histograms/histograms_EMJ_s-channel_mMed-1500_mDark-10_ctau-1000_unflavored-down.root",
+    "EMJ_s-channel_mMed-1500_mDark-10_ctau-100_unflavored-down": "histograms/histograms_EMJ_s-channel_mMed-1500_mDark-10_ctau-100_unflavored-down.root",
+    "EMJ_s-channel_mMed-1500_mDark-10_ctau-1_unflavored-down": "histograms/histograms_EMJ_s-channel_mMed-1500_mDark-10_ctau-1_unflavored-down.root",
+    "EMJ_s-channel_mMed-1500_mDark-20_ctau-1000_unflavored-down": "histograms/histograms_EMJ_s-channel_mMed-1500_mDark-20_ctau-1000_unflavored-down.root",
+    "EMJ_s-channel_mMed-1500_mDark-20_ctau-100_unflavored-down": "histograms/histograms_EMJ_s-channel_mMed-1500_mDark-20_ctau-100_unflavored-down.root",
+    "EMJ_s-channel_mMed-1500_mDark-20_ctau-1_unflavored-down": "histograms/histograms_EMJ_s-channel_mMed-1500_mDark-20_ctau-1_unflavored-down.root",
 }
 
 datasetNameDict = {
+    "QCD_Combined": "QCD",
     "QCD_Bin-Pt-30to50": "QCD (pT=30 to 50 GeV)",
     "QCD_Bin-Pt-50to80": "QCD (pT=50 to 80 GeV)",
     "QCD_Bin-Pt-80to120": "QCD (pT=80 to 120 GeV)",
@@ -72,6 +76,8 @@ datasetNameDict = {
     "QCD_Bin-Pt-300to470": "QCD (pT=300 to 470 GeV)",
     "QCD_Bin-Pt-470to600": "QCD (pT=470 to 600 GeV)",
     "QCD_Bin-Pt-600to800": "QCD (pT=600 to 800 GeV)",
+    "QCD_Bin-Pt-800to1000": "QCD (pT=800 to 1000 GeV)",
+    "QCD_Bin-Pt-1000": "QCD (pT>1000 GeV)",
     "EMJ_s-channel_mMed-100_mDark-10_ctau-1000_unflavored-down": "EMJ (mMed=100, mDark=10, ctau=1000)",
     "EMJ_s-channel_mMed-100_mDark-10_ctau-100_unflavored-down": "EMJ (mMed=100, mDark=10, ctau=100)",
     "EMJ_s-channel_mMed-100_mDark-10_ctau-1_unflavored-down": "EMJ (mMed=100, mDark=10, ctau=1)",
@@ -111,6 +117,7 @@ datasetNameDict = {
 }
 
 plotColorDict = {
+    "QCD_Combined": 1,
     "QCD_Bin-Pt-30to50": 50,
     "QCD_Bin-Pt-50to80": 9,
     "QCD_Bin-Pt-80to120": 8,
@@ -119,6 +126,8 @@ plotColorDict = {
     "QCD_Bin-Pt-300to470": 51,
     "QCD_Bin-Pt-470to600": 38,
     "QCD_Bin-Pt-600to800": 67,
+    "QCD_Bin-Pt-800to1000": 6,
+    "QCD_Bin-Pt-1000": 71,
     "EMJ_s-channel_mMed-100_mDark-10_ctau-1000_unflavored-down": 50,
     "EMJ_s-channel_mMed-100_mDark-10_ctau-100_unflavored-down": 9,
     "EMJ_s-channel_mMed-100_mDark-10_ctau-1_unflavored-down": 8,
@@ -217,11 +226,11 @@ def plot1DComparison(histDict, xLabel, xMin, xMax, outFile):
 
     canvas.cd()
     pad2.cd()
-    legend = ROOT.TLegend(0, 0.4, 0.9, 0.9)
+    legend = ROOT.TLegend(0, 0.35, 0.9, 0.9)
     dataset_list = list(histDict.keys())
     for i in range(len(histograms)):
         legend.AddEntry(histograms[i], datasetNameDict[dataset_list[i]], "lp")
-    legend.SetTextSize(0.045)
+    legend.SetTextSize(0.055)
     legend.SetBorderSize(0)
     legend.SetFillStyle(0)
     legend.Draw()
