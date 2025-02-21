@@ -9,6 +9,8 @@ fileDict = {
     "QCD_Bin-Pt-300to470": "./data/fileList_Run3EMJJetStudy_QCD_Bin-Pt-300to470.txt",       
     "QCD_Bin-Pt-470to600": "./data/fileList_Run3EMJJetStudy_QCD_Bin-Pt-470to600.txt",
     "QCD_Bin-Pt-600to800": "./data/fileList_Run3EMJJetStudy_QCD_Bin-Pt-600to800.txt",
+    "QCD_Bin-Pt-800to1000": "./data/fileList_Run3EMJJetStudy_QCD_Bin-Pt-800to1000.txt",
+    "QCD_Bin-Pt-1000": "./data/fileList_Run3EMJJetStudy_QCD_Bin-Pt-1000.txt",
     "EMJ_s-channel_mMed-2000_mDark-10_ctau-1000_unflavored-down": "./data/fileList_s-channel_mMed-2000_mDark-10_ctau-1000_unflavored-down.txt",
     "EMJ_s-channel_mMed-2000_mDark-10_ctau-100_unflavored-down": "./data/fileList_s-channel_mMed-2000_mDark-10_ctau-100_unflavored-down.txt",
     "EMJ_s-channel_mMed-2000_mDark-10_ctau-1_unflavored-down": "./data/fileList_s-channel_mMed-2000_mDark-10_ctau-1_unflavored-down.txt",
