@@ -40,21 +40,29 @@ def parseArgs() -> argparse.Namespace:
     )
     return p.parse_args()
     
-def plotHCalDepthEFs(histograms, y_label, outdir, plot_filename, norm_method='log'):
+def plotHCalDepthEFs(histograms, y_label, outdir, plot_filename, norm_method='log', pt_min=0.0, pt_max=1000.0):
 
     hist_names = ["1", "2", "3", "4", "5", "6", "7"]
     depth_edges = list(range(8))
     bin_edges = histograms[0].axes[0].edges()[1:] # skip the first bin
     bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
     
+    pt_bin_edges = histograms[0].axes[1].edges()
+    pt_start = np.searchsorted(pt_bin_edges, pt_min, side="left") - 1
+    pt_end = np.searchsorted(pt_bin_edges, pt_max, side="right") - 1
+    
     X, Y = np.meshgrid(depth_edges, bin_edges)
-    values_2d = np.array([hist.values()[1:] for hist in histograms]).T # skip the first bin in each hist
+    values_2d = np.array(
+        [np.sum(hist.values()[:, pt_start:pt_end], axis=1)[1:] for hist in histograms]
+    ).T
+    if sum(sum(values_2d))==0: return
     masked_vals = np.ma.masked_where(values_2d == 0, values_2d)
     
     sum_weights = np.sum(values_2d, axis=0)  # Sum of counts per depth
     sum_weighted_bins = np.sum(values_2d * bin_centers[:, None], axis=0)  # Weighted sum per depth
     profile = np.divide(sum_weighted_bins, sum_weights, where=(sum_weights != 0))
     profile = np.nan_to_num(profile, nan=0.0, posinf=0.0, neginf=0.0)  # Ensure no NaNs
+    profile[(profile < 0) | (profile > 1)] = 0
 
     variance_numerator = np.sum(values_2d * (bin_centers[:, None] - profile) ** 2, axis=0)
     weighted_std_dev = np.sqrt(np.divide(variance_numerator, sum_weights, where=(sum_weights != 0)))
@@ -99,6 +107,7 @@ def plotHCalDepthEFs(histograms, y_label, outdir, plot_filename, norm_method='lo
     #fig.subplots_adjust(wspace=0.05, hspace=0.05)
     fig.savefig(outdir + plot_filename + ".pdf")
     fig.savefig(outdir + plot_filename + ".png")
+    plt.close(fig)
     
 ###################################################################################################
 # MAIN METHOD
@@ -113,26 +122,51 @@ def main():
     
     hep.style.use("CMS")
     
+    pt_min_vals = [0,50,100,150,200,250]
+    pt_max_vals = [50,100,150,200,250,300]
+    
     # create leading jet average hcal energy fraction plot
     histograms = [f[f"leadJet_avgConstituentHcalDepthEF{i}"] for i in range(1,8)]
     plotHCalDepthEFs(histograms,
                      "Lead Jet Average HCAL Energy Fraction",
                      args.outdir,
-                     f"leadJet_avgConstituentHcalDepthEF_{args.dataset}_{todaysDate}")
+                     f"leadJet_avgConstituentHcalDepthEF_{args.dataset}_allPt_{todaysDate}")
+    for i in range(len(pt_min_vals)):
+        plotHCalDepthEFs(histograms,
+                         "Lead Jet Average HCAL Energy Fraction",
+                         args.outdir,
+                         f"leadJet_avgConstituentHcalDepthEF_{args.dataset}_Pt{pt_min_vals[i]}to{pt_max_vals[i]}_{todaysDate}",
+                         pt_min=pt_min_vals[i],
+                         pt_max=pt_max_vals[i])
+        
                      
     # create leading jet pt-weighted average hcal energy fraction plot
     histograms = [f[f"leadJet_pTWeightedAvgConstituentHcalDepthEF{i}"] for i in range(1,8)]
     plotHCalDepthEFs(histograms,
                      "Lead Jet pT-Weighted Average HCAL Energy Fraction",
                      args.outdir,
-                     f"leadJet_pTWeightedAvgConstituentHcalDepthEF_{args.dataset}_{todaysDate}")
+                     f"leadJet_pTWeightedAvgConstituentHcalDepthEF_{args.dataset}_allPt_{todaysDate}")
+    for i in range(len(pt_min_vals)):
+        plotHCalDepthEFs(histograms,
+                         "Lead Jet pT-Weighted Average HCAL Energy Fraction",
+                         args.outdir,
+                         f"leadJet_pTWeightedAvgConstituentHcalDepthEF_{args.dataset}_Pt{pt_min_vals[i]}to{pt_max_vals[i]}_{todaysDate}",
+                         pt_min=pt_min_vals[i],
+                         pt_max=pt_max_vals[i])
                      
     # create leading jet median hcal energy fraction plot
     histograms = [f[f"leadJet_medConstituentHcalDepthEF{i}"] for i in range(1,8)]
     plotHCalDepthEFs(histograms,
                      "Lead Jet Median HCAL Energy Fraction",
                      args.outdir,
-                     f"leadJet_medConstituentHcalDepthEF_{args.dataset}_{todaysDate}")
+                     f"leadJet_medConstituentHcalDepthEF_{args.dataset}_allPt_{todaysDate}")
+    for i in range(len(pt_min_vals)):
+        plotHCalDepthEFs(histograms,
+                         "Lead Jet Median HCAL Energy Fraction",
+                         args.outdir,
+                         f"leadJet_medConstituentHcalDepthEF_{args.dataset}_Pt{pt_min_vals[i]}to{pt_max_vals[i]}_{todaysDate}",
+                         pt_min=pt_min_vals[i],
+                         pt_max=pt_max_vals[i])
                      
     # create leading jet minimum hcal energy fraction plot
     histograms = [f[f"leadJet_minConstituentHcalDepthEF{i}"] for i in range(1,8)]
@@ -140,6 +174,13 @@ def main():
                      "Lead Jet Minimum HCAL Energy Fraction",
                      args.outdir,
                      f"leadJet_minConstituentHcalDepthEF_{args.dataset}_{todaysDate}")
+    for i in range(len(pt_min_vals)):
+        plotHCalDepthEFs(histograms,
+                         "Lead Jet Minimum HCAL Energy Fraction",
+                         args.outdir,
+                         f"leadJet_minConstituentHcalDepthEF_{args.dataset}_Pt{pt_min_vals[i]}to{pt_max_vals[i]}_{todaysDate}",
+                         pt_min=pt_min_vals[i],
+                         pt_max=pt_max_vals[i])
                      
     # create leading jet maximum hcal energy fraction plot
     histograms = [f[f"leadJet_maxConstituentHcalDepthEF{i}"] for i in range(1,8)]
@@ -147,6 +188,13 @@ def main():
                      "Lead Jet Maximum HCAL Energy Fraction",
                      args.outdir,
                      f"leadJet_maxConstituentHcalDepthEF_{args.dataset}_{todaysDate}")
+    for i in range(len(pt_min_vals)):
+        plotHCalDepthEFs(histograms,
+                         "Lead Jet Maximum HCAL Energy Fraction",
+                         args.outdir,
+                         f"leadJet_maxConstituentHcalDepthEF_{args.dataset}_Pt{pt_min_vals[i]}to{pt_max_vals[i]}_{todaysDate}",
+                         pt_min=pt_min_vals[i],
+                         pt_max=pt_max_vals[i])
     
 
 ###################################################################################################

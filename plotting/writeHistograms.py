@@ -400,9 +400,9 @@ def createHisto2D(
     histoModel = ROOT.RDF.TH2DModel(
         name=hist_name,
         title=hist_name,
-        nbinsx=n_bins_y,
-        xlow=bin_low_y,
-        xup=bin_high_y,
+        nbinsx=n_bins_x,
+        xlow=bin_low_x,
+        xup=bin_high_x,
         nbinsy=n_bins_y,
         ylow=bin_low_y,
         yup=bin_high_y,
