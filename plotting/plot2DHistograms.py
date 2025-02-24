@@ -40,7 +40,7 @@ def parseArgs() -> argparse.Namespace:
     )
     return p.parse_args()
     
-def plotHCalDepthEFs(histograms, y_label, outdir, plot_filename, norm_method='log', pt_min=0.0, pt_max=1000.0):
+def plotHCalDepthEFs(histograms, y_label, outdir, plot_filename, norm_method='log', pt_min=None, pt_max=None):
 
     hist_names = ["1", "2", "3", "4", "5", "6", "7"]
     depth_edges = list(range(8))
@@ -52,9 +52,14 @@ def plotHCalDepthEFs(histograms, y_label, outdir, plot_filename, norm_method='lo
     pt_end = np.searchsorted(pt_bin_edges, pt_max, side="right") - 1
     
     X, Y = np.meshgrid(depth_edges, bin_edges)
-    values_2d = np.array(
-        [np.sum(hist.values()[:, pt_start:pt_end], axis=1)[1:] for hist in histograms]
-    ).T
+    if pt_min and pt_max:
+        values_2d = np.array(
+            [np.sum(hist.values()[:, pt_start:pt_end], axis=1)[1:] for hist in histograms[i]]
+        ).T
+    else:
+        values_2d = np.array(
+            [np.sum(hist.values(), axis=1)[1:] for hist in histograms[i]]
+        ).T
     if sum(sum(values_2d))==0: return
     masked_vals = np.ma.masked_where(values_2d == 0, values_2d)
     
