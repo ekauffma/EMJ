@@ -7,6 +7,9 @@
 <use name="CommonTools/UtilAlgos"/>
 <use name="PhysicsTools/PatAlgos"/>
 <use name="DataFormats/ParticleFlowCandidate"/>
+<use name="DataFormats/JetReco"/>
+<use name="DataFormats/HepMCCandidate"/>
+<use name="DataFormats/Candidate"/>
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="ROOT"/>
 
