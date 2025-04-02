@@ -68,33 +68,18 @@ def createChain(
 
 def declareCppMethods():
 
-    # function for unflattening jet constituent info
-    ROOT.gInterpreter.Declare("""
-#include <vector>
-
-std::vector<std::vector<double>> reconstructJetConstituentInfo(const ROOT::VecOps::RVec<double>& flat_data, const ROOT::VecOps::RVec<double>& sizes) {
-    std::vector<std::vector<double>> perJetData;
-    int index = 0;
-    
-    for (int i = 0; i < sizes.size(); ++i) {
-        int size = (int)sizes[i];
-        std::vector<double> jetConstituents(flat_data.begin() + index, flat_data.begin() + index + size);
-        perJetData.push_back(jetConstituents);
-        index += size;
-    }
-    
-    return perJetData;
-}
-""")
-
     # function for applying jet mask to nested variable
     ROOT.gInterpreter.Declare(R"""
 #include <vector>
+#include "ROOT/RVec.hxx"
 
-std::vector<std::vector<double>> filterJetsByMask(const std::vector<std::vector<double>>& jetData, const ROOT::VecOps::RVec<int>& mask) {
-    std::vector<std::vector<double>> filteredJets;
-    for (size_t i = 0; i < mask.size(); ++i) {
-        if (mask[i]) {
+using namespace ROOT::VecOps;
+
+// Function to filter jets based on a mask
+RVec<RVec<double>> filterJetsByMask(const RVec<RVec<double>>& jetData, const RVec<int>& mask) {
+    RVec<RVec<double>> filteredJets;
+    for (size_t i = 0; i < jetData.size(); ++i) {
+        if (mask[i] == 1) {  // Keep only jets that pass the mask condition
             filteredJets.push_back(jetData[i]);
         }
     }
@@ -105,9 +90,10 @@ std::vector<std::vector<double>> filterJetsByMask(const std::vector<std::vector<
     # function for computing averages of constituent info per jet
     ROOT.gInterpreter.Declare("""
 #include <vector>
+#include "ROOT/RVec.hxx"
 
-std::vector<double> computeJetAverages(const std::vector<std::vector<double>>& perJetData) {
-    std::vector<double> jetAverages;
+RVec<double> computeJetAverages(const RVec<RVec<double>>& perJetData) {
+    RVec<double> jetAverages;
     for (const auto& jetConstituents : perJetData) {
         if (!jetConstituents.empty()) {
             double sum = 0;
@@ -125,14 +111,15 @@ std::vector<double> computeJetAverages(const std::vector<std::vector<double>>& p
     # function for computing pT of jet constituents
     ROOT.gInterpreter.Declare("""
 #include <vector>
+#include "ROOT/RVec.hxx"
 
-std::vector<std::vector<double>> computeJetConstituentPt(
-    const std::vector<std::vector<double>>& JetConstituentPx,
-    const std::vector<std::vector<double>>& JetConstituentPy)
+RVec<RVec<double>> computeJetConstituentPt(
+    const RVec<RVec<double>>& JetConstituentPx,
+    const RVec<RVec<double>>& JetConstituentPy)
 {
-    std::vector<std::vector<double>> JetConstituentPt;
+    RVec<RVec<double>> JetConstituentPt;
     for (size_t i = 0; i < JetConstituentPx.size(); ++i) {
-        std::vector<double> ptValues;
+        RVec<double> ptValues;
         for (size_t j = 0; j < JetConstituentPx[i].size(); ++j) {
             double pt = std::sqrt(JetConstituentPx[i][j] * JetConstituentPx[i][j] + JetConstituentPy[i][j] * JetConstituentPy[i][j]);
             ptValues.push_back(pt);
@@ -146,12 +133,13 @@ std::vector<std::vector<double>> computeJetConstituentPt(
     # function for computing pt-weighted averages of constituent info per jet
     ROOT.gInterpreter.Declare("""
 #include <vector>
+#include "ROOT/RVec.hxx"
 
-std::vector<double> computePtWeightedJetAverages(
-    const std::vector<std::vector<double>>& perJetConstituentVar,
-    const std::vector<std::vector<double>>& perJetConstituentPt)
+RVec<double> computePtWeightedJetAverages(
+    const RVec<RVec<double>>& perJetConstituentVar,
+    const RVec<RVec<double>>& perJetConstituentPt)
 {
-    std::vector<double> jetWeightedAverages;
+        RVec<double> jetWeightedAverages;
     for(size_t i = 0; i < perJetConstituentVar.size(); ++i) {
         double sum = 0.0;
         double ptsum = 0.0;
@@ -171,12 +159,13 @@ std::vector<double> computePtWeightedJetAverages(
     ROOT.gInterpreter.Declare("""
 #include <vector>
 #include <algorithm>
+#include "ROOT/RVec.hxx"
     
-std::vector<double> computeJetMedians(const std::vector<std::vector<double>>& perJetConstituentVar) {
-    std::vector<double> jetMedians;
+RVec<double> computeJetMedians(const RVec<RVec<double>>& perJetConstituentVar) {
+    RVec<double> jetMedians;
     for(size_t i = 0; i < perJetConstituentVar.size(); ++i) {
         if (!perJetConstituentVar[i].empty()) {
-            std::vector<double> sortedData = perJetConstituentVar[i];
+            RVec<double> sortedData = perJetConstituentVar[i];
             std::sort(sortedData.begin(), sortedData.end());
             size_t n = sortedData.size();
             if (n % 2 == 0) {
@@ -194,9 +183,10 @@ std::vector<double> computeJetMedians(const std::vector<std::vector<double>>& pe
     ROOT.gInterpreter.Declare("""
 #include <vector>
 #include <algorithm>
+#include "ROOT/RVec.hxx"
     
-std::vector<double> computeJetMinimums(const std::vector<std::vector<double>>& perJetConstituentVar) {
-    std::vector<double> jetMinimums;
+RVec<double> computeJetMinimums(const RVec<RVec<double>>& perJetConstituentVar) {
+    RVec<double> jetMinimums;
     for(size_t i = 0; i < perJetConstituentVar.size(); ++i) {
         double minimum = 1.0;
         for (size_t j = 0; j < perJetConstituentVar[i].size(); ++j) {
@@ -212,9 +202,10 @@ std::vector<double> computeJetMinimums(const std::vector<std::vector<double>>& p
     ROOT.gInterpreter.Declare("""
 #include <vector>
 #include <algorithm>
+#include "ROOT/RVec.hxx"
     
-std::vector<double> computeJetMaximums(const std::vector<std::vector<double>>& perJetConstituentVar) {
-    std::vector<double> jetMaximums;
+RVec<double> computeJetMaximums(const RVec<RVec<double>>& perJetConstituentVar) {
+    RVec<double> jetMaximums;
     for(size_t i = 0; i < perJetConstituentVar.size(); ++i) {
         double maximum = 0.0;
         for (size_t j = 0; j < perJetConstituentVar[i].size(); ++j) {
@@ -225,8 +216,99 @@ std::vector<double> computeJetMaximums(const std::vector<std::vector<double>>& p
     return jetMaximums;
 }
 """)
+    
+    # function for filtering out constituents that leave no energy in the HCAL
+    ROOT.gInterpreter.Declare("""
+#include <vector>
+#include <cmath>
+using namespace ROOT::VecOps;
+
+RVec<int> getValidConstituentIndices(
+    const RVec<float>& hcalDepthEF1,
+    const RVec<float>& hcalDepthEF2,
+    const RVec<float>& hcalDepthEF3,
+    const RVec<float>& hcalDepthEF4,
+    const RVec<float>& hcalDepthEF5,
+    const RVec<float>& hcalDepthEF6,
+    const RVec<float>& hcalDepthEF7) {
+
+    RVec<int> valid_indices;
+    for (size_t i = 0; i < hcalDepthEF1.size(); ++i) {
+        bool all_zero = (hcalDepthEF1[i] == 0) && (hcalDepthEF2[i] == 0) &&
+                        (hcalDepthEF3[i] == 0) && (hcalDepthEF4[i] == 0) &&
+                        (hcalDepthEF5[i] == 0) && (hcalDepthEF6[i] == 0) &&
+                        (hcalDepthEF7[i] == 0);
+        if (!all_zero) valid_indices.push_back(i);
+    }
+    return valid_indices;
+}
+""")
+
+    # function to filter a vector based on valid indices
+    ROOT.gInterpreter.Declare("""
+#include <vector>
+#include <cmath>
+using namespace ROOT::VecOps;
+
+template <typename T>
+RVec<T> filterVector(const RVec<T>& vec, const RVec<int>& indices) {
+    RVec<T> filtered;
+    for (int idx : indices) {
+        filtered.push_back(vec[idx]);
+    }
+    return filtered;
+}
+    
+""")
+
+    # function to recompute jet number of constituents after filtering
+    ROOT.gInterpreter.Declare("""
+#include <vector>
+#include <cmath>
+using namespace ROOT::VecOps;
+
+RVec<int> recomputeJetNConstituents(const RVec<int>& original_nConstituents, const RVec<int>& valid_indices) {
+    RVec<int> new_nConstituents;
+    int index = 0;
+    for (auto n : original_nConstituents) {
+        int count = 0;
+        for (int i = 0; i < n; i++) {
+            if (index < valid_indices.size() && valid_indices[index] == i) {
+                count++;
+                index++;
+            }
+        }
+        new_nConstituents.push_back(count);
+    }
+    return new_nConstituents;
+}
+    
+""")
+    
+
+
+    # function to reconstruct per-jet structure after filtering
+    ROOT.gInterpreter.Declare("""
+#include <vector>
+#include <cmath>
+using namespace ROOT::VecOps;
+    
+template <typename T>
+RVec<RVec<T>> reconstructPerJet(const RVec<T>& vec, const RVec<int>& Jet_nConstituent) {
+    RVec<RVec<T>> perJet;
+    int offset = 0;
+    for (size_t i = 0; i < Jet_nConstituent.size(); ++i) {
+        int n = Jet_nConstituent[i];
+        perJet.emplace_back(vec.begin() + offset, vec.begin() + offset + n);
+        offset += n;
+    }
+    return perJet;
+}
+    
+""")
 
     return
+    
 
 def prepareDataframe(df):
 
@@ -234,21 +316,43 @@ def prepareDataframe(df):
     df = df.Define("Jet_mask", "(Jet_Pt > 20) && (abs(Jet_Eta)<2.5)") # apply jet selections here
     df = df.Filter("Sum(Jet_mask)>=1") # require at least one good jet per event
     print("Filtered events to contain at least one good jet")
-
+    
+    # filter constituents
+    df = df.Define("valid_indices",
+                   "getValidConstituentIndices(Constituent_hcalDepthEF1, Constituent_hcalDepthEF2, Constituent_hcalDepthEF3, Constituent_hcalDepthEF4, Constituent_hcalDepthEF5, Constituent_hcalDepthEF6, Constituent_hcalDepthEF7)"
+                   )
+                   
+    df = df.Define("Jet_nFilteredConstituent", "recomputeJetNConstituents(Jet_nConstituent, valid_indices)")
+                   
+    df = df.Define("filteredConstituent_Px", "filterVector(Constituent_Px, valid_indices)")
+    df = df.Define("filteredConstituent_Py", "filterVector(Constituent_Py, valid_indices)")
+    df = df.Define("filteredConstituent_Pz", "filterVector(Constituent_Pz, valid_indices)")
+    df = df.Define("filteredConstituent_E", "filterVector(Constituent_E, valid_indices)")
+    
+    df = df.Define("filteredConstituent_hcalDepthEF1", "filterVector(Constituent_hcalDepthEF1, valid_indices)")
+    df = df.Define("filteredConstituent_hcalDepthEF2", "filterVector(Constituent_hcalDepthEF2, valid_indices)")
+    df = df.Define("filteredConstituent_hcalDepthEF3", "filterVector(Constituent_hcalDepthEF3, valid_indices)")
+    df = df.Define("filteredConstituent_hcalDepthEF4", "filterVector(Constituent_hcalDepthEF4, valid_indices)")
+    df = df.Define("filteredConstituent_hcalDepthEF5", "filterVector(Constituent_hcalDepthEF5, valid_indices)")
+    df = df.Define("filteredConstituent_hcalDepthEF6", "filterVector(Constituent_hcalDepthEF6, valid_indices)")
+    df = df.Define("filteredConstituent_hcalDepthEF7", "filterVector(Constituent_hcalDepthEF7, valid_indices)")
+    print("Filtered out constituents with no deposits in HCAL")
+    
+    
     # unflatten jet constituent info
-    df = df.Define("Jet_Constituent_Px", "reconstructJetConstituentInfo(Constituent_Px, Jet_nConstituent)")
-    df = df.Define("Jet_Constituent_Py", "reconstructJetConstituentInfo(Constituent_Py, Jet_nConstituent)")
-    df = df.Define("Jet_Constituent_Pz", "reconstructJetConstituentInfo(Constituent_Pz, Jet_nConstituent)")
-    df = df.Define("Jet_Constituent_E", "reconstructJetConstituentInfo(Constituent_E, Jet_nConstituent)")
+    df = df.Define("Jet_Constituent_Px", "reconstructPerJet(filteredConstituent_Px, Jet_nFilteredConstituent)")
+    df = df.Define("Jet_Constituent_Py", "reconstructPerJet(filteredConstituent_Py, Jet_nFilteredConstituent)")
+    df = df.Define("Jet_Constituent_Pz", "reconstructPerJet(filteredConstituent_Pz, Jet_nFilteredConstituent)")
+    df = df.Define("Jet_Constituent_E", "reconstructPerJet(filteredConstituent_E, Jet_nFilteredConstituent)")
     print("Unflatted jet constituent kinematics variables")
     
-    df = df.Define("Jet_Constituent_hcalDepthEF1", "reconstructJetConstituentInfo(Constituent_hcalDepthEF1, Jet_nConstituent)")
-    df = df.Define("Jet_Constituent_hcalDepthEF2", "reconstructJetConstituentInfo(Constituent_hcalDepthEF2, Jet_nConstituent)")
-    df = df.Define("Jet_Constituent_hcalDepthEF3", "reconstructJetConstituentInfo(Constituent_hcalDepthEF3, Jet_nConstituent)")
-    df = df.Define("Jet_Constituent_hcalDepthEF4", "reconstructJetConstituentInfo(Constituent_hcalDepthEF4, Jet_nConstituent)")
-    df = df.Define("Jet_Constituent_hcalDepthEF5", "reconstructJetConstituentInfo(Constituent_hcalDepthEF5, Jet_nConstituent)")
-    df = df.Define("Jet_Constituent_hcalDepthEF6", "reconstructJetConstituentInfo(Constituent_hcalDepthEF6, Jet_nConstituent)")
-    df = df.Define("Jet_Constituent_hcalDepthEF7", "reconstructJetConstituentInfo(Constituent_hcalDepthEF7, Jet_nConstituent)")
+    df = df.Define("Jet_Constituent_hcalDepthEF1", "reconstructPerJet(filteredConstituent_hcalDepthEF1, Jet_nFilteredConstituent)")
+    df = df.Define("Jet_Constituent_hcalDepthEF2", "reconstructPerJet(filteredConstituent_hcalDepthEF2, Jet_nFilteredConstituent)")
+    df = df.Define("Jet_Constituent_hcalDepthEF3", "reconstructPerJet(filteredConstituent_hcalDepthEF3, Jet_nFilteredConstituent)")
+    df = df.Define("Jet_Constituent_hcalDepthEF4", "reconstructPerJet(filteredConstituent_hcalDepthEF4, Jet_nFilteredConstituent)")
+    df = df.Define("Jet_Constituent_hcalDepthEF5", "reconstructPerJet(filteredConstituent_hcalDepthEF5, Jet_nFilteredConstituent)")
+    df = df.Define("Jet_Constituent_hcalDepthEF6", "reconstructPerJet(filteredConstituent_hcalDepthEF6, Jet_nFilteredConstituent)")
+    df = df.Define("Jet_Constituent_hcalDepthEF7", "reconstructPerJet(filteredConstituent_hcalDepthEF7, Jet_nFilteredConstituent)")
     print("Unflatted jet constituent HCAL depth fractions")
     
     # filter out bad jets
@@ -256,7 +360,7 @@ def prepareDataframe(df):
     df = df.Define("goodJet_Eta", "Jet_Eta[Jet_mask]")
     df = df.Define("goodJet_Phi", "Jet_Phi[Jet_mask]")
     df = df.Define("goodJet_E", "Jet_E[Jet_mask]")
-    df = df.Define("goodJet_nConstituent", "Jet_nConstituent[Jet_mask]")
+    df = df.Define("goodJet_nFilteredConstituent", "Jet_nFilteredConstituent[Jet_mask]")
     df = df.Define("goodJet_Constituent_Px", "filterJetsByMask(Jet_Constituent_Px, Jet_mask)")
     df = df.Define("goodJet_Constituent_Py", "filterJetsByMask(Jet_Constituent_Py, Jet_mask)")
     df = df.Define("goodJet_Constituent_Pz", "filterJetsByMask(Jet_Constituent_Pz, Jet_mask)")
@@ -329,7 +433,11 @@ def prepareDataframe(df):
     df = df.Define("leadJet_Eta", "goodJet_Eta[0]")
     df = df.Define("leadJet_Phi", "goodJet_Phi[0]")
     df = df.Define("leadJet_E", "goodJet_E[0]")
-    df = df.Define("leadJet_nConstituent", "goodJet_nConstituent[0]")
+    df = df.Define("leadJet_nConstituent", "goodJet_nFilteredConstituent[0]")
+    
+    # filter out events where the leading jet has no remaining constituents
+    df = df.Filter("leadJet_nConstituent > 0")
+    
     df = df.Define("leadJet_avgConstituentHcalDepthEF1", "goodJet_avgConstituentHcalDepthEF1[0]")
     df = df.Define("leadJet_avgConstituentHcalDepthEF2", "goodJet_avgConstituentHcalDepthEF2[0]")
     df = df.Define("leadJet_avgConstituentHcalDepthEF3", "goodJet_avgConstituentHcalDepthEF3[0]")
@@ -337,6 +445,7 @@ def prepareDataframe(df):
     df = df.Define("leadJet_avgConstituentHcalDepthEF5", "goodJet_avgConstituentHcalDepthEF5[0]")
     df = df.Define("leadJet_avgConstituentHcalDepthEF6", "goodJet_avgConstituentHcalDepthEF6[0]")
     df = df.Define("leadJet_avgConstituentHcalDepthEF7", "goodJet_avgConstituentHcalDepthEF7[0]")
+    
     df = df.Define("leadJet_pTWeightedAvgConstituentHcalDepthEF1", "goodJet_pTWeightedAvgConstituentHcalDepthEF1[0]")
     df = df.Define("leadJet_pTWeightedAvgConstituentHcalDepthEF2", "goodJet_pTWeightedAvgConstituentHcalDepthEF2[0]")
     df = df.Define("leadJet_pTWeightedAvgConstituentHcalDepthEF3", "goodJet_pTWeightedAvgConstituentHcalDepthEF3[0]")
@@ -344,6 +453,7 @@ def prepareDataframe(df):
     df = df.Define("leadJet_pTWeightedAvgConstituentHcalDepthEF5", "goodJet_pTWeightedAvgConstituentHcalDepthEF5[0]")
     df = df.Define("leadJet_pTWeightedAvgConstituentHcalDepthEF6", "goodJet_pTWeightedAvgConstituentHcalDepthEF6[0]")
     df = df.Define("leadJet_pTWeightedAvgConstituentHcalDepthEF7", "goodJet_pTWeightedAvgConstituentHcalDepthEF7[0]")
+    
     df = df.Define("leadJet_medConstituentHcalDepthEF1", "goodJet_medConstituentHcalDepthEF1[0]")
     df = df.Define("leadJet_medConstituentHcalDepthEF2", "goodJet_medConstituentHcalDepthEF2[0]")
     df = df.Define("leadJet_medConstituentHcalDepthEF3", "goodJet_medConstituentHcalDepthEF3[0]")
@@ -351,6 +461,7 @@ def prepareDataframe(df):
     df = df.Define("leadJet_medConstituentHcalDepthEF5", "goodJet_medConstituentHcalDepthEF5[0]")
     df = df.Define("leadJet_medConstituentHcalDepthEF6", "goodJet_medConstituentHcalDepthEF6[0]")
     df = df.Define("leadJet_medConstituentHcalDepthEF7", "goodJet_medConstituentHcalDepthEF7[0]")
+    
     df = df.Define("leadJet_minConstituentHcalDepthEF1", "goodJet_minConstituentHcalDepthEF1[0]")
     df = df.Define("leadJet_minConstituentHcalDepthEF2", "goodJet_minConstituentHcalDepthEF2[0]")
     df = df.Define("leadJet_minConstituentHcalDepthEF3", "goodJet_minConstituentHcalDepthEF3[0]")
@@ -358,6 +469,7 @@ def prepareDataframe(df):
     df = df.Define("leadJet_minConstituentHcalDepthEF5", "goodJet_minConstituentHcalDepthEF5[0]")
     df = df.Define("leadJet_minConstituentHcalDepthEF6", "goodJet_minConstituentHcalDepthEF6[0]")
     df = df.Define("leadJet_minConstituentHcalDepthEF7", "goodJet_minConstituentHcalDepthEF7[0]")
+    
     df = df.Define("leadJet_maxConstituentHcalDepthEF1", "goodJet_maxConstituentHcalDepthEF1[0]")
     df = df.Define("leadJet_maxConstituentHcalDepthEF2", "goodJet_maxConstituentHcalDepthEF2[0]")
     df = df.Define("leadJet_maxConstituentHcalDepthEF3", "goodJet_maxConstituentHcalDepthEF3[0]")
@@ -366,9 +478,13 @@ def prepareDataframe(df):
     df = df.Define("leadJet_maxConstituentHcalDepthEF6", "goodJet_maxConstituentHcalDepthEF6[0]")
     df = df.Define("leadJet_maxConstituentHcalDepthEF7", "goodJet_maxConstituentHcalDepthEF7[0]")
     
-    
+    # separate values into barrel and endcap regions
+    df = df.Define("leadJet_HB_mask", "abs(leadJet_Eta)<1.305")
+    df = df.Define("leadJet_HE_mask", "(abs(leadJet_Eta)<2.5) && (abs(leadJet_Eta)>1.305)")
+    dfHB = df.Filter("leadJet_HB_mask")
+    dfHE = df.Filter("leadJet_HE_mask")
 
-    return df
+    return df, dfHB, dfHE
 
 def createHisto1D(
     hist_list,
@@ -414,7 +530,7 @@ def createHisto2D(
 
 
 def bookHistos(
-    df
+    df, dfHB, dfHE
 ):
 
     hists = []
@@ -424,48 +540,66 @@ def bookHistos(
     hists = createHisto1D(hists, df, "leadJet_Phi", "leadJet_Phi", 100, -3.14, 3.14)
     hists = createHisto1D(hists, df, "leadJet_E", "leadJet_E", 200, 0, 1000)
     hists = createHisto1D(hists, df, "leadJet_nConstituent", "leadJet_nConstituent", 200, 0, 200)
-    hists = createHisto2D(hists, df, "leadJet_avgConstituentHcalDepthEF1", "leadJet_avgConstituentHcalDepthEF1", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_avgConstituentHcalDepthEF2", "leadJet_avgConstituentHcalDepthEF2", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_avgConstituentHcalDepthEF3", "leadJet_avgConstituentHcalDepthEF3", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_avgConstituentHcalDepthEF4", "leadJet_avgConstituentHcalDepthEF4", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_avgConstituentHcalDepthEF5", "leadJet_avgConstituentHcalDepthEF5", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_avgConstituentHcalDepthEF6", "leadJet_avgConstituentHcalDepthEF6", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_avgConstituentHcalDepthEF7", "leadJet_avgConstituentHcalDepthEF7", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_pTWeightedAvgConstituentHcalDepthEF1", "leadJet_pTWeightedAvgConstituentHcalDepthEF1", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_pTWeightedAvgConstituentHcalDepthEF2", "leadJet_pTWeightedAvgConstituentHcalDepthEF2", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_pTWeightedAvgConstituentHcalDepthEF3", "leadJet_pTWeightedAvgConstituentHcalDepthEF3", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_pTWeightedAvgConstituentHcalDepthEF4", "leadJet_pTWeightedAvgConstituentHcalDepthEF4", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_pTWeightedAvgConstituentHcalDepthEF5", "leadJet_pTWeightedAvgConstituentHcalDepthEF5", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_pTWeightedAvgConstituentHcalDepthEF6", "leadJet_pTWeightedAvgConstituentHcalDepthEF6", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_pTWeightedAvgConstituentHcalDepthEF7", "leadJet_pTWeightedAvgConstituentHcalDepthEF7", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_medConstituentHcalDepthEF1", "leadJet_medConstituentHcalDepthEF1", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_medConstituentHcalDepthEF2", "leadJet_medConstituentHcalDepthEF2", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_medConstituentHcalDepthEF3", "leadJet_medConstituentHcalDepthEF3", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_medConstituentHcalDepthEF4", "leadJet_medConstituentHcalDepthEF4", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_medConstituentHcalDepthEF5", "leadJet_medConstituentHcalDepthEF5", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_medConstituentHcalDepthEF6", "leadJet_medConstituentHcalDepthEF6", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_medConstituentHcalDepthEF7", "leadJet_medConstituentHcalDepthEF7", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_medConstituentHcalDepthEF1", "leadJet_medConstituentHcalDepthEF1", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_medConstituentHcalDepthEF2", "leadJet_medConstituentHcalDepthEF2", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_medConstituentHcalDepthEF3", "leadJet_medConstituentHcalDepthEF3", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_medConstituentHcalDepthEF4", "leadJet_medConstituentHcalDepthEF4", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_medConstituentHcalDepthEF5", "leadJet_medConstituentHcalDepthEF5", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_medConstituentHcalDepthEF6", "leadJet_medConstituentHcalDepthEF6", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_medConstituentHcalDepthEF7", "leadJet_medConstituentHcalDepthEF7", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_minConstituentHcalDepthEF1", "leadJet_minConstituentHcalDepthEF1", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_minConstituentHcalDepthEF2", "leadJet_minConstituentHcalDepthEF2", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_minConstituentHcalDepthEF3", "leadJet_minConstituentHcalDepthEF3", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_minConstituentHcalDepthEF4", "leadJet_minConstituentHcalDepthEF4", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_minConstituentHcalDepthEF5", "leadJet_minConstituentHcalDepthEF5", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_minConstituentHcalDepthEF6", "leadJet_minConstituentHcalDepthEF6", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_minConstituentHcalDepthEF7", "leadJet_minConstituentHcalDepthEF7", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_maxConstituentHcalDepthEF1", "leadJet_maxConstituentHcalDepthEF1", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_maxConstituentHcalDepthEF2", "leadJet_maxConstituentHcalDepthEF2", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_maxConstituentHcalDepthEF3", "leadJet_maxConstituentHcalDepthEF3", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_maxConstituentHcalDepthEF4", "leadJet_maxConstituentHcalDepthEF4", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_maxConstituentHcalDepthEF5", "leadJet_maxConstituentHcalDepthEF5", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_maxConstituentHcalDepthEF6", "leadJet_maxConstituentHcalDepthEF6", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
-    hists = createHisto2D(hists, df, "leadJet_maxConstituentHcalDepthEF7", "leadJet_maxConstituentHcalDepthEF7", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    
+    hists = createHisto2D(hists, dfHB, "leadJet_HB_avgConstituentHcalDepthEF1", "leadJet_avgConstituentHcalDepthEF1", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHB, "leadJet_HB_avgConstituentHcalDepthEF2", "leadJet_avgConstituentHcalDepthEF2", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHB, "leadJet_HB_avgConstituentHcalDepthEF3", "leadJet_avgConstituentHcalDepthEF3", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHB, "leadJet_HB_avgConstituentHcalDepthEF4", "leadJet_avgConstituentHcalDepthEF4", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_avgConstituentHcalDepthEF1", "leadJet_avgConstituentHcalDepthEF1", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_avgConstituentHcalDepthEF2", "leadJet_avgConstituentHcalDepthEF2", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_avgConstituentHcalDepthEF3", "leadJet_avgConstituentHcalDepthEF3", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_avgConstituentHcalDepthEF4", "leadJet_avgConstituentHcalDepthEF4", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_avgConstituentHcalDepthEF5", "leadJet_avgConstituentHcalDepthEF5", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_avgConstituentHcalDepthEF6", "leadJet_avgConstituentHcalDepthEF6", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_avgConstituentHcalDepthEF7", "leadJet_avgConstituentHcalDepthEF7", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    
+    hists = createHisto2D(hists, dfHB, "leadJet_HB_pTWeightedAvgConstituentHcalDepthEF1", "leadJet_pTWeightedAvgConstituentHcalDepthEF1", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHB, "leadJet_HB_pTWeightedAvgConstituentHcalDepthEF2", "leadJet_pTWeightedAvgConstituentHcalDepthEF2", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHB, "leadJet_HB_pTWeightedAvgConstituentHcalDepthEF3", "leadJet_pTWeightedAvgConstituentHcalDepthEF3", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHB, "leadJet_HB_pTWeightedAvgConstituentHcalDepthEF4", "leadJet_pTWeightedAvgConstituentHcalDepthEF4", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_pTWeightedAvgConstituentHcalDepthEF1", "leadJet_pTWeightedAvgConstituentHcalDepthEF1", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_pTWeightedAvgConstituentHcalDepthEF2", "leadJet_pTWeightedAvgConstituentHcalDepthEF2", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_pTWeightedAvgConstituentHcalDepthEF3", "leadJet_pTWeightedAvgConstituentHcalDepthEF3", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_pTWeightedAvgConstituentHcalDepthEF4", "leadJet_pTWeightedAvgConstituentHcalDepthEF4", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_pTWeightedAvgConstituentHcalDepthEF5", "leadJet_pTWeightedAvgConstituentHcalDepthEF5", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_pTWeightedAvgConstituentHcalDepthEF6", "leadJet_pTWeightedAvgConstituentHcalDepthEF6", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_pTWeightedAvgConstituentHcalDepthEF7", "leadJet_pTWeightedAvgConstituentHcalDepthEF7", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    
+    hists = createHisto2D(hists, dfHB, "leadJet_HB_medConstituentHcalDepthEF1", "leadJet_medConstituentHcalDepthEF1", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHB, "leadJet_HB_medConstituentHcalDepthEF2", "leadJet_medConstituentHcalDepthEF2", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHB, "leadJet_HB_medConstituentHcalDepthEF3", "leadJet_medConstituentHcalDepthEF3", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHB, "leadJet_HB_medConstituentHcalDepthEF4", "leadJet_medConstituentHcalDepthEF4", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_medConstituentHcalDepthEF1", "leadJet_medConstituentHcalDepthEF1", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_medConstituentHcalDepthEF2", "leadJet_medConstituentHcalDepthEF2", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_medConstituentHcalDepthEF3", "leadJet_medConstituentHcalDepthEF3", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_medConstituentHcalDepthEF4", "leadJet_medConstituentHcalDepthEF4", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_medConstituentHcalDepthEF5", "leadJet_medConstituentHcalDepthEF5", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_medConstituentHcalDepthEF6", "leadJet_medConstituentHcalDepthEF6", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_medConstituentHcalDepthEF7", "leadJet_medConstituentHcalDepthEF7", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    
+    hists = createHisto2D(hists, dfHB, "leadJet_HB_minConstituentHcalDepthEF1", "leadJet_minConstituentHcalDepthEF1", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHB, "leadJet_HB_minConstituentHcalDepthEF2", "leadJet_minConstituentHcalDepthEF2", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHB, "leadJet_HB_minConstituentHcalDepthEF3", "leadJet_minConstituentHcalDepthEF3", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHB, "leadJet_HB_minConstituentHcalDepthEF4", "leadJet_minConstituentHcalDepthEF4", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_minConstituentHcalDepthEF1", "leadJet_minConstituentHcalDepthEF1", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_minConstituentHcalDepthEF2", "leadJet_minConstituentHcalDepthEF2", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_minConstituentHcalDepthEF3", "leadJet_minConstituentHcalDepthEF3", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_minConstituentHcalDepthEF4", "leadJet_minConstituentHcalDepthEF4", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_minConstituentHcalDepthEF5", "leadJet_minConstituentHcalDepthEF5", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_minConstituentHcalDepthEF6", "leadJet_minConstituentHcalDepthEF6", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_minConstituentHcalDepthEF7", "leadJet_minConstituentHcalDepthEF7", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    
+    hists = createHisto2D(hists, dfHB, "leadJet_HB_maxConstituentHcalDepthEF1", "leadJet_maxConstituentHcalDepthEF1", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHB, "leadJet_HB_maxConstituentHcalDepthEF2", "leadJet_maxConstituentHcalDepthEF2", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHB, "leadJet_HB_maxConstituentHcalDepthEF3", "leadJet_maxConstituentHcalDepthEF3", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHB, "leadJet_HB_maxConstituentHcalDepthEF4", "leadJet_maxConstituentHcalDepthEF4", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_maxConstituentHcalDepthEF1", "leadJet_maxConstituentHcalDepthEF1", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_maxConstituentHcalDepthEF2", "leadJet_maxConstituentHcalDepthEF2", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_maxConstituentHcalDepthEF3", "leadJet_maxConstituentHcalDepthEF3", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_maxConstituentHcalDepthEF4", "leadJet_maxConstituentHcalDepthEF4", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_maxConstituentHcalDepthEF5", "leadJet_maxConstituentHcalDepthEF5", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_maxConstituentHcalDepthEF6", "leadJet_maxConstituentHcalDepthEF6", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
+    hists = createHisto2D(hists, dfHE, "leadJet_HE_maxConstituentHcalDepthEF7", "leadJet_maxConstituentHcalDepthEF7", 50, 0, 1, "leadJet_Pt", 20, 0, 1000)
 
     return hists
 
@@ -503,10 +637,10 @@ def runLocal(
     print("Created dataframe")
     print("number of events: ", df.Count().GetValue())
     
-    df = prepareDataframe(df)
+    df, dfHB, dfHE = prepareDataframe(df)
     print("Prepared columns in dataframe")
 
-    histoList = bookHistos(df)
+    histoList = bookHistos(df, dfHB, dfHE)
     print("Booked histos")
 
     return histoList
