@@ -17,20 +17,28 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/HcalRecHit/interface/CaloRecHitAuxSetter.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "TTree.h"
 
 typedef std::unordered_set<unsigned> PidSet;
 
 
-class JetInfoNtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources>
+class EMJMCNtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources>
 {
 public:
-  explicit JetInfoNtuplizer(const edm::ParameterSet&);
-  ~JetInfoNtuplizer() = default;
+  explicit EMJMCNtuplizer(const edm::ParameterSet&);
+  ~EMJMCNtuplizer() = default;
 
 private:
   void beginJob() override {};
@@ -42,6 +50,10 @@ private:
   const edm::EDGetTokenT<std::vector<reco::GenJet>> tok_GenJet_;
   const edm::EDGetTokenT<reco::PFJetCollection> tok_PFJet_;
   const edm::EDGetTokenT<GenEventInfoProduct> tok_genInfo_;
+  const edm::EDGetTokenT<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit>>> tok_hcalRecHitsHBHE_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_CaloGeometry_;
+
+  const CaloSubdetectorGeometry *caloGeometry_HB;
 
   TTree* tree;
   edm::Service<TFileService> theFileService;
@@ -131,19 +143,35 @@ private:
   std::vector<int> GenParticle_idx;
   std::vector<int> GenParticle_nParents;
   std::vector<int> GenParticle_parentIdx;
-    
+  std::vector<int> GenParticle_nDaughters;
+  std::vector<int> GenParticle_daughterIdx;
+
+  int nRecHit;
+  std::vector<double> RecHit_time;
+  std::vector<double> RecHit_E;
+  std::vector<double> RecHit_eta;
+  std::vector<double> RecHit_phi;
+  std::vector<int> RecHit_auxTDC0;
+  std::vector<int> RecHit_auxTDC1;
+  std::vector<int> RecHit_auxTDC2;  
+  std::vector<int> RecHit_auxTDC3;
+  std::vector<int> RecHit_auxTDC4;
+  std::vector<int> RecHit_auxTDC5;
+
 };
 
-JetInfoNtuplizer::JetInfoNtuplizer(const edm::ParameterSet& iConfig):
+EMJMCNtuplizer::EMJMCNtuplizer(const edm::ParameterSet& iConfig):
   tok_PFCandidate_( consumes<std::vector<reco::PFCandidate>>(iConfig.getParameter<edm::InputTag>("PFCandidateToken"))),
   tok_GenParticle_( consumes<std::vector<reco::GenParticle>>(iConfig.getParameter<edm::InputTag>("GenParticleToken"))),
   tok_GenJet_( consumes<std::vector<reco::GenJet>>(iConfig.getParameter<edm::InputTag>("GenJetToken"))),
   tok_PFJet_(consumes<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("PFJetToken"))),
-  tok_genInfo_( consumes<GenEventInfoProduct>(edm::InputTag("generator")))
+  tok_genInfo_( consumes<GenEventInfoProduct>(edm::InputTag("generator"))),
+  tok_hcalRecHitsHBHE_(consumes<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit>>>( iConfig.getParameter<edm::InputTag>("hbRecHitsToken") )),
+  tok_CaloGeometry_(esConsumes<CaloGeometry, CaloGeometryRecord>())
 {
   usesResource("TFileService");
 
-  tree = theFileService->make<TTree>("PFCand","Particle Flow Candidate information");
+  tree = theFileService->make<TTree>("Events","");
 
   tree->Branch("run", &run);
   tree->Branch("lumi", &lumi);
@@ -229,7 +257,21 @@ JetInfoNtuplizer::JetInfoNtuplizer(const edm::ParameterSet& iConfig):
   tree->Branch("GenParticle_charge", &GenParticle_charge);
   tree->Branch("GenParticle_idx", &GenParticle_idx);
   tree->Branch("GenParticle_nParents", &GenParticle_nParents);
-  tree->Branch("GenParticle_parentIdx", &GenParticle_parentIdx);  
+  tree->Branch("GenParticle_parentIdx", &GenParticle_parentIdx); 
+  tree->Branch("GenParticle_nDaughters", &GenParticle_nDaughters);
+  tree->Branch("GenParticle_daughterIdx", &GenParticle_daughterIdx); 
+
+  tree->Branch("nRecHit", &nRecHit);
+  tree->Branch("RecHit_time", &RecHit_time);
+  tree->Branch("RecHit_E", &RecHit_E);
+  tree->Branch("RecHit_eta", &RecHit_eta);
+  tree->Branch("RecHit_phi", &RecHit_phi);
+  tree->Branch("RecHit_auxTDC0", &RecHit_auxTDC0);
+  tree->Branch("RecHit_auxTDC1", &RecHit_auxTDC1);
+  tree->Branch("RecHit_auxTDC2", &RecHit_auxTDC2);
+  tree->Branch("RecHit_auxTDC3", &RecHit_auxTDC3);
+  tree->Branch("RecHit_auxTDC4", &RecHit_auxTDC4);
+  tree->Branch("RecHit_auxTDC5", &RecHit_auxTDC5);
 }
 
 bool isDarkParticle(int pdgId) {
@@ -256,7 +298,7 @@ static unsigned get_index(const std::vector<const T_derived*>& list, const T_bas
    return (ret == list.size()) ? def : ret;
 }
 
-void JetInfoNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void EMJMCNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::Handle<std::vector<reco::PFCandidate>> handle_PFCandidate;
   iEvent.getByToken(tok_PFCandidate_, handle_PFCandidate);
@@ -274,6 +316,12 @@ void JetInfoNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     
   edm::Handle<std::vector<reco::GenJet>> handle_GenJet;
   iEvent.getByToken(tok_GenJet_, handle_GenJet);
+
+  edm::Handle<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit>>> handle_hcalRecHitsHBHE;
+  iEvent.getByToken(tok_hcalRecHitsHBHE_, handle_hcalRecHitsHBHE);
+
+  auto const& geoHandle = iSetup.getData(tok_CaloGeometry_);
+  caloGeometry_HB = geoHandle.getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
 
   run = iEvent.id().run();
   lumi = iEvent.id().luminosityBlock();
@@ -367,6 +415,10 @@ void JetInfoNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     for(size_t i = 0; i < gpart->numberOfMothers(); i++) {
       GenParticle_parentIdx.push_back(get_index(gen_list, gpart->mother(i), self_idx)); 
     }
+    GenParticle_nDaughters.push_back(gpart->numberOfDaughters());
+    for(size_t i = 0; i < gpart->numberOfDaughters(); i++) {
+      GenParticle_daughterIdx.push_back(get_index(gen_list, gpart->daughter(i), self_idx));
+    }
   }
     
   nGenJet = handle_GenJet->size();
@@ -423,6 +475,29 @@ void JetInfoNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       }
     }
     GenJet_nDarkAncestor.push_back(nDarkAncestors);
+  }
+
+  nRecHit = 0;
+  for( uint ih = 0; ih < handle_hcalRecHitsHBHE->size(); ih++ ){
+    const HBHERecHit *recHit = &(*handle_hcalRecHitsHBHE)[ih];
+    const HcalDetId recHitId = recHit->detid();
+    if( recHit->detid().subdetId() != HcalBarrel ) continue;
+    nRecHit++;
+    RecHit_time.push_back(recHit->time());
+    RecHit_E.push_back(recHit->energy());
+    const auto recHitPos = caloGeometry_HB->getGeometry(recHitId)->getPosition();
+    RecHit_eta.push_back(recHitPos.eta());
+    RecHit_phi.push_back(recHitPos.phi());
+    const uint32_t auxTDC = recHit->auxTDC();
+    if (auxTDC) {
+      const unsigned six_bits_mask = 0x3f;
+      RecHit_auxTDC0.push_back(CaloRecHitAuxSetter::getField(auxTDC, six_bits_mask, 0 * 6));
+      RecHit_auxTDC1.push_back(CaloRecHitAuxSetter::getField(auxTDC, six_bits_mask, 1 * 6));
+      RecHit_auxTDC2.push_back(CaloRecHitAuxSetter::getField(auxTDC, six_bits_mask, 2 * 6));
+      RecHit_auxTDC3.push_back(CaloRecHitAuxSetter::getField(auxTDC, six_bits_mask, 3 * 6));
+      RecHit_auxTDC4.push_back(CaloRecHitAuxSetter::getField(auxTDC, six_bits_mask, 4 * 6));
+      RecHit_auxTDC5.push_back(CaloRecHitAuxSetter::getField(auxTDC, six_bits_mask, 5 * 6));
+    }
   }
 
   tree->Fill();
@@ -499,7 +574,20 @@ void JetInfoNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   GenParticle_charge.clear();
   GenParticle_idx.clear();
   GenParticle_nParents.clear();
-  GenParticle_parentIdx.clear();  
+  GenParticle_parentIdx.clear(); 
+  GenParticle_nDaughters.clear();
+  GenParticle_daughterIdx.clear();  
+
+  RecHit_time.clear();
+  RecHit_E.clear();
+  RecHit_eta.clear();
+  RecHit_phi.clear();
+  RecHit_auxTDC0.clear();
+  RecHit_auxTDC1.clear();
+  RecHit_auxTDC2.clear();
+  RecHit_auxTDC3.clear();
+  RecHit_auxTDC4.clear();
+  RecHit_auxTDC5.clear();
 }
 
-DEFINE_FWK_MODULE(JetInfoNtuplizer);
+DEFINE_FWK_MODULE(EMJMCNtuplizer);

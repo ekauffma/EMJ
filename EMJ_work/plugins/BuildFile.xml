@@ -10,7 +10,11 @@
 <use name="DataFormats/JetReco"/>
 <use name="DataFormats/HepMCCandidate"/>
 <use name="DataFormats/Candidate"/>
+<use name="DataFormats/HcalRecHit"/>
+<use name="DataFormats/HcalDetId"/>
 <use name="SimDataFormats/GeneratorProducts"/>
+<use name="Geometry/CaloGeometry"/>
+<use name="Geometry/Records"/>
 <use name="ROOT"/>
 
 
