@@ -12,6 +12,7 @@ sh SubmitToCondor.sh output_${1}_${count} ${input_filename}
 
 count=$[$count+1]
 
+
 done < $file
 
 exit 0
