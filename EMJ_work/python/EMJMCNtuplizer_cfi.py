@@ -6,5 +6,6 @@ EMJMCNtuplizer = cms.EDAnalyzer(
     PFJetToken = cms.InputTag("ak4PFJetsPuppi"),
     GenJetToken = cms.InputTag("ak4GenJets"),
     GenParticleToken = cms.InputTag("genParticles"),
-    hbRecHitsToken = cms.InputTag("reducedHcalRecHits", "hbhereco")
+    hbRecHitsToken = cms.InputTag("reducedHcalRecHits", "hbhereco"),
+    VertexToken = cms.InputTag("offlinePrimaryVertices")
 )

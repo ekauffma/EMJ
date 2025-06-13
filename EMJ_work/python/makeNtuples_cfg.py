@@ -27,15 +27,16 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(options.maxEvents)
+    #input = cms.untracked.int32(50)
 )
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 process.source = cms.Source("PoolSource",
 #                            fileNames = cms.untracked.vstring("root://cmsxrootd.fnal.gov///store/mc/RunIII2024Summer24DRPremix/QCD_Bin-PT-15to7000_Par-PT-flat2022_TuneCP5_13p6TeV_pythia8/AODSIM/140X_mcRun3_2024_realistic_v26-v2/100000/0008dd44-b7c4-47a8-8c25-0c099bce037b.root"),
-                            fileNames = cms.untracked.vstring("root://cmseos.fnal.gov//store/user/ekauffma/EMJ/2022/RECO/step_RECO_s-channel_mMed-750_mDark-20_ctau-1_unflavored-down_n-1000_part-1.root"),
-                            #fileNames = cms.untracked.vstring(options.inputFiles),
+#                            fileNames = cms.untracked.vstring("root://cmseos.fnal.gov//store/user/ekauffma/EMJ/2022/RECO/step_RECO_s-channel_mMed-750_mDark-20_ctau-1_unflavored-down_n-1000_part-1.root"),
+                            fileNames = cms.untracked.vstring(options.inputFiles),
                             )
 
 process.options = cms.untracked.PSet(
@@ -75,9 +76,9 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '140X_dataRun3_Prompt_v4', '')
 
 process.schedule = cms.Schedule()
 
-from EMJ.EMJ_work.JetInfoNtuplizer_cfi import JetInfoNtuplizer
-process.JetInfoNtuplizer = JetInfoNtuplizer
-process.customNtuplePath = cms.Path(process.JetInfoNtuplizer)
+from EMJ.EMJ_work.EMJMCNtuplizer_cfi import EMJMCNtuplizer
+process.EMJMCNtuplizer = EMJMCNtuplizer
+process.customNtuplePath = cms.Path(process.EMJMCNtuplizer)
 process.schedule.append(process.customNtuplePath)
 
 

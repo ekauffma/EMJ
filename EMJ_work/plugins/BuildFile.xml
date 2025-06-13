@@ -7,11 +7,13 @@
 <use name="CommonTools/UtilAlgos"/>
 <use name="PhysicsTools/PatAlgos"/>
 <use name="DataFormats/ParticleFlowCandidate"/>
+<use name="DataFormats/ParticleFlowReco"/>
 <use name="DataFormats/JetReco"/>
 <use name="DataFormats/HepMCCandidate"/>
 <use name="DataFormats/Candidate"/>
 <use name="DataFormats/HcalRecHit"/>
 <use name="DataFormats/HcalDetId"/>
+<use name="DataFormats/VertexReco"/>
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/Records"/>

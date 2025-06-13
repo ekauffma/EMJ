@@ -1,6 +1,7 @@
 #include <memory>
 #include <iostream>
 #include <string>
+#include <cmath>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
@@ -20,6 +21,9 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/CaloRecHitAuxSetter.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
@@ -52,6 +56,7 @@ private:
   const edm::EDGetTokenT<GenEventInfoProduct> tok_genInfo_;
   const edm::EDGetTokenT<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit>>> tok_hcalRecHitsHBHE_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_CaloGeometry_;
+  const edm::EDGetTokenT<std::vector<reco::Vertex>> tok_Vertex_;
 
   const CaloSubdetectorGeometry *caloGeometry_HB;
 
@@ -64,6 +69,8 @@ private:
 
   float pthat;
   float weight;
+
+  int nPV;
 
   int nPFCand;
   std::vector<double> rawHoverE;
@@ -97,6 +104,20 @@ private:
   std::vector<double> Constituent_hcalDepthEF6;
   std::vector<double> Constituent_hcalDepthEF7;
     
+  std::vector<int> Jet_nJetRecHit;
+  std::vector<int> JetRecHit_auxTDC3;
+  std::vector<double> JetRecHit_energy;
+  std::vector<double> JetRecHit_eta;
+  std::vector<double> JetRecHit_phi;
+
+  /*
+  std::vector<int> Jet_nTrueJetRecHit;
+  std::vector<int> TrueJetRecHit_auxTDC3;
+  std::vector<double> TrueJetRecHit_energy;
+  std::vector<double> TrueJetRecHit_eta;
+  std::vector<double> TrueJetRecHit_phi;
+  */  
+
   int nGenJet;
   std::vector<double> GenJet_Pt;
   std::vector<double> GenJet_Eta;
@@ -167,7 +188,8 @@ EMJMCNtuplizer::EMJMCNtuplizer(const edm::ParameterSet& iConfig):
   tok_PFJet_(consumes<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("PFJetToken"))),
   tok_genInfo_( consumes<GenEventInfoProduct>(edm::InputTag("generator"))),
   tok_hcalRecHitsHBHE_(consumes<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit>>>( iConfig.getParameter<edm::InputTag>("hbRecHitsToken") )),
-  tok_CaloGeometry_(esConsumes<CaloGeometry, CaloGeometryRecord>())
+  tok_CaloGeometry_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+  tok_Vertex_( consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("VertexToken")))
 {
   usesResource("TFileService");
 
@@ -179,6 +201,8 @@ EMJMCNtuplizer::EMJMCNtuplizer(const edm::ParameterSet& iConfig):
 
   tree->Branch("pthat", &pthat);
   tree->Branch("weight", &weight);
+
+  tree->Branch("nPV", &nPV);
 
   tree->Branch("nPFCand", &nPFCand);
   tree->Branch("PFCand_rawHoverE", &rawHoverE);
@@ -212,6 +236,20 @@ EMJMCNtuplizer::EMJMCNtuplizer(const edm::ParameterSet& iConfig):
   tree->Branch("Constituent_hcalDepthEF6", &Constituent_hcalDepthEF6);
   tree->Branch("Constituent_hcalDepthEF7", &Constituent_hcalDepthEF7);
     
+  tree->Branch("Jet_nJetRecHit", &Jet_nJetRecHit);
+  tree->Branch("JetRecHit_auxTDC3", &JetRecHit_auxTDC3);
+  tree->Branch("JetRecHit_energy", &JetRecHit_energy);
+  tree->Branch("JetRecHit_eta", &JetRecHit_eta);
+  tree->Branch("JetRecHit_phi", &JetRecHit_phi);
+
+  /*
+  tree->Branch("Jet_nTrueJetRecHit", &Jet_nTrueJetRecHit);
+  tree->Branch("JetRecHit_auxTDC3", &JetRecHit_auxTDC3);
+  tree->Branch("JetRecHit_energy", &JetRecHit_energy);
+  tree->Branch("JetRecHit_eta", &JetRecHit_eta);
+  tree->Branch("JetRecHit_phi", &JetRecHit_phi);
+  */
+
   tree->Branch("nGenJet", &nGenJet);
   tree->Branch("GenJet_Pt", &GenJet_Pt);
   tree->Branch("GenJet_Eta", &GenJet_Eta);
@@ -290,6 +328,12 @@ const T* getDarkAncestor(const T* part ) {
   return nullptr;
 }
 
+double deltaR(double eta1, double phi1, double eta2, double phi2) {
+    double deta = eta1 - eta2;
+    double dphi = deltaPhi(phi1, phi2);
+    return std::sqrt(deta * deta + dphi * dphi);
+}
+
 // Given the list of Gen particle pointers, find the where a given point is in the list
 template <typename T_base, typename T_derived>
 static unsigned get_index(const std::vector<const T_derived*>& list, const T_base* target, unsigned def) {
@@ -323,6 +367,11 @@ void EMJMCNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   auto const& geoHandle = iSetup.getData(tok_CaloGeometry_);
   caloGeometry_HB = geoHandle.getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
 
+  edm::Handle<std::vector<reco::Vertex>> handle_Vertex;
+  iEvent.getByToken(tok_Vertex_, handle_Vertex);
+
+  nPV = handle_Vertex->size();
+
   run = iEvent.id().run();
   lumi = iEvent.id().luminosityBlock();
   evt = iEvent.id().event();
@@ -343,6 +392,7 @@ void EMJMCNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     // get constituent pfcandidates
     std::vector<reco::PFCandidatePtr> jet_const = jet->getPFConstituents();
     Jet_nConstituent.push_back(jet_const.size());
+    // int Jet_nTrueJetRecHit_current = 0;
     for (
       std::vector<reco::PFCandidatePtr>::const_iterator it_cand = jet_const.begin(); 
       it_cand != jet_const.end(); 
@@ -361,7 +411,48 @@ void EMJMCNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       Constituent_hcalDepthEF5.push_back((*it_cand)->hcalDepthEnergyFraction(5));
       Constituent_hcalDepthEF6.push_back((*it_cand)->hcalDepthEnergyFraction(6));
       Constituent_hcalDepthEF7.push_back((*it_cand)->hcalDepthEnergyFraction(7));
+
+      /*
+      for (const reco::PFCandidate::ElementInBlock &eib : (*it_cand)->elementsInBlocks()) {
+        const reco::PFBlockRef &block = eib.first;
+        for (const reco::PFBlockElement &element : block->elements()) {
+          if (element.type() != reco::PFBlockElement::Type::HCAL) {
+            continue;
+          }
+	  const reco::PFClusterRef &cluster_ref = element.clusterRef();
+      	  if (!cluster_ref.isAvailable()) {
+            continue;
+          }
+          for (const std::pair<DetId, float> &p : cluster_ref->hitsAndFractions()) {
+            const det_Id = p.first;
+            const fraction = p.second;
+            std::cout << "Out:" << det_Id.rawId() << " " << fraction << std::endl;
+          }
+        }
+      }
+      */
     }
+      
+    int Jet_nJetRecHit_current = 0;
+    for( uint ih = 0; ih < handle_hcalRecHitsHBHE->size(); ih++ ){
+      const HBHERecHit *recHit = &(*handle_hcalRecHitsHBHE)[ih];
+      const HcalDetId recHitId = recHit->detid();
+      if( recHit->detid().subdetId() != HcalBarrel ) continue; // ensure recHit is in the HCAL barrel
+      const auto recHitPos = caloGeometry_HB->getGeometry(recHitId)->getPosition();
+      if (deltaR(recHitPos.eta(), recHitPos.phi(), jet->eta(), jet->phi())>0.4) continue; // ensure recHit is within jet radius
+      const uint32_t auxTDC = recHit->auxTDC();
+      if (auxTDC) {
+        const unsigned six_bits_mask = 0x3f;
+        ++Jet_nJetRecHit_current;
+        JetRecHit_auxTDC3.push_back(CaloRecHitAuxSetter::getField(auxTDC, six_bits_mask, 3 * 6));
+        JetRecHit_energy.push_back(recHit->energy());
+        JetRecHit_eta.push_back(recHitPos.eta());
+        JetRecHit_phi.push_back(recHitPos.phi());
+        JetRecHit_energy.push_back(recHit->energy());
+      }
+    }
+    Jet_nJetRecHit.push_back(Jet_nJetRecHit_current);
+
   }
 
   nPFCand = handle_PFCandidate->size();
@@ -530,6 +621,12 @@ void EMJMCNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   Constituent_hcalDepthEF5.clear();
   Constituent_hcalDepthEF6.clear();
   Constituent_hcalDepthEF7.clear();
+    
+  Jet_nJetRecHit.clear();
+  JetRecHit_auxTDC3.clear();
+  JetRecHit_energy.clear();
+  JetRecHit_eta.clear();
+  JetRecHit_phi.clear();
     
   GenJet_Pt.clear();
   GenJet_Eta.clear();
