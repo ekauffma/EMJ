@@ -1,10 +1,8 @@
 #!/bin/bash
 
 A_values=(100 250 500 750 1000 1500) # mMed values
-#A_values=(1000 1500)
 B_values=(10 20) # mDark values
 C_values=(1 100 1000 1500 2000) # ctau values
-#C_values=(1500 2000)
 
 for A in "${A_values[@]}"; do
     echo "mMed = ${A}"

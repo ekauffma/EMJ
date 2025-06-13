@@ -1,6 +1,6 @@
 ###################################################################################################
-#   plot2DHistograms.py                                                                           #
-#   Description: create 2d plots of jet constituent info from histograms created by               #
+#   plotProfiles.py                                                                               #
+#   Description: create profile plots of jet constituent info from histograms created by          #
 #   writeHistograms.py                                                                            #
 #   Author: Elliott Kauffman                                                                      #
 ###################################################################################################
@@ -110,13 +110,16 @@ def plotHCalDepthEFProfiles(sampleDict, histograms, samples, y_label, outdir, pl
             values_2d = np.array(
                 [np.sum(hist.values(), axis=1) for hist in histograms[i]]
             ).T
-        sum_weights = np.sum(values_2d, axis=0)
-        sum_weighted_bins = np.sum(values_2d * bin_centers[:, None], axis=0)
+            
+        values_2d_for_profile = values_2d[1:]  # exclude 0-th bin
+        bin_centers_for_profile = bin_centers[1:]
+        sum_weights = np.sum(values_2d_for_profile, axis=0)
+        sum_weighted_bins = np.sum(values_2d_for_profile * bin_centers_for_profile[:, None], axis=0)
         profile = np.divide(sum_weighted_bins, sum_weights, where=(sum_weights != 0))
         profile = np.nan_to_num(profile, nan=0.0, posinf=0.0, neginf=0.0)
         profile[(profile < 0) | (profile > 1)] = 0
 
-        sum_weighted_bins_sq = np.sum(values_2d * (bin_centers[:, None])**2, axis=0)
+        sum_weighted_bins_sq = np.sum(values_2d_for_profile * (bin_centers_for_profile[:, None])**2, axis=0)
         variance = np.divide(sum_weighted_bins_sq, sum_weights, where=(sum_weights != 0)) - profile**2
         variance = np.maximum(variance, 0)  # Ensure variance is non-negative
         stddev = np.sqrt(variance)
@@ -159,10 +162,8 @@ def main():
     
     sampleDict = constructSampleDict()
     
-    pt_min_vals = [0,50,100,150,200,250]
-    pt_max_vals = [50,100,150,200,250,300]
-    pt_min_vals = []
-    pt_max_vals = []
+    pt_min_vals = [0,50,150,300]
+    pt_max_vals = [50,150,300,500]
     categories = ['avg', 'med', 'min', 'max','pTWeightedAvg']
     category_names = ['Average', 'Median', 'Minimum', 'Maximum', 'pT-Weighted Average']
     regions = ['HE', 'HB']

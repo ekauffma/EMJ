@@ -1,6 +1,6 @@
 ###################################################################################################
-#   plot2DHistograms.py                                                                           #
-#   Description: create 2d plots of jet constituent info from histograms created by               #
+#   plotDistributions.py                                                                          #
+#   Description: create distribution plots of jet constituent info from histograms created by     #
 #   writeHistograms.py                                                                            #
 #   Author: Elliott Kauffman                                                                      #
 ###################################################################################################
@@ -87,11 +87,19 @@ def plotHcalDepthEFDistributions(sampleDict, histograms, samples, x_label, outdi
     max_y = 0.0
     
     for i in range(len(histograms)):
-    
+  
         hist_values = histograms[i].values()
         bin_edges = histograms[i].axes[0].edges()
+
+        if colors[i]!='black' and ('min' not in plot_filename):
+            n_x_bins = (hist_values.shape[0] // 2) * 2
+            hist_values = hist_values[:n_x_bins].reshape(-1, 2, hist_values.shape[1]).sum(axis=1)
+            rebinned_bin_edges = bin_edges[::2]
+            if len(rebinned_bin_edges) == hist_values.shape[0]:
+                rebinned_bin_edges = np.append(rebinned_bin_edges, bin_edges[-1])
+            bin_edges = rebinned_bin_edges
         bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
-    
+
         if pt_min is not None and pt_max is not None:
             pt_mask = (histograms[i].axes[1].centers >= pt_min) & (histograms[i].axes[1].centers <= pt_max)
             values = np.sum(hist_values[:, pt_mask], axis=1)
@@ -116,7 +124,18 @@ def plotHcalDepthEFDistributions(sampleDict, histograms, samples, x_label, outdi
         ax.errorbar(x=bin_centers, y=values, yerr=errors, linestyle='', color=colors[i % len(colors)])
         ax.errorbar(x=bin_edges[:-1],y=values,drawstyle='steps-post', linewidth=linewidth, label=samples[i],color=colors[i % len(colors)])
         
-        
+    if ("HoverE" in plot_filename) and ("min" in plot_filename): 
+        ax.set_xlim([0,5])
+    if ("HoverE" in plot_filename) and ("pTWeighted" in plot_filename):
+        ax.set_xlim([0,20])
+    if ("HoverE" in plot_filename) and ("max" in plot_filename):
+        ax.set_xlim([0,50])
+    if ("HoverE" in plot_filename) and ("avg" in plot_filename):
+        ax.set_xlim([0,50])
+    if ("HoverE" in plot_filename) and ("med" in plot_filename):
+        ax.set_xlim([0,50])
+
+
     ax.set_xlabel(x_label)
     ax.set_ylabel("Events [A.U.]" if norm else "Events")
     ax.set_ylim([0,1.6*max_y])
@@ -190,6 +209,94 @@ def main():
                             args.outdir,
                             f"leadJet_{region}_{category}ConstituentHCalDepthEF{i}_mDark{mDark_val}_ctau{ctau_val}_{todaysDate}"
                         )
+                        
+                    histograms = [files[j][f"leadJet_{region}_{category}ConstituentRawHoverE"]
+                                  for j in range(len(samples))]
+                                  
+                    plotHcalDepthEFDistributions(
+                        sampleDict,
+                        histograms,
+                        samples,
+                        f"Lead Jet {category_names[k]} Raw H Over E",
+                        args.outdir,
+                        f"leadJet_{region}_{category}ConstituentRawHoverE_mDark{mDark_val}_ctau{ctau_val}_{todaysDate}"
+                    )
+                    
+                    histograms = [files[j][f"leadJet_{region}_{category}ConstituentHoverE"]
+                                  for j in range(len(samples))]
+                                  
+                    plotHcalDepthEFDistributions(
+                        sampleDict,
+                        histograms,
+                        samples,
+                        f"Lead Jet {category_names[k]} H Over E",
+                        args.outdir,
+                        f"leadJet_{region}_{category}ConstituentHoverE_mDark{mDark_val}_ctau{ctau_val}_{todaysDate}"
+                    )
+                        
+    mMed_vals = [100, 250, 500, 750, 1000, 1500]
+    for k, category in enumerate(categories):
+        print("category = ", category)
+        
+        for mDark_val in mDark_vals:
+            print("    mDark = ", mDark_val)
+            
+            for mMed_val in mMed_vals:
+                print("        mMed = ", mMed_val)
+                samples = [
+                    "QCD_Combined",
+                    f"EMJ_s-channel_mMed-{mMed_val}_mDark-{mDark_val}_ctau-1_unflavored-down",
+                    f"EMJ_s-channel_mMed-{mMed_val}_mDark-{mDark_val}_ctau-100_unflavored-down",
+                    f"EMJ_s-channel_mMed-{mMed_val}_mDark-{mDark_val}_ctau-1000_unflavored-down",
+                    f"EMJ_s-channel_mMed-{mMed_val}_mDark-{mDark_val}_ctau-1500_unflavored-down",
+                    f"EMJ_s-channel_mMed-{mMed_val}_mDark-{mDark_val}_ctau-2000_unflavored-down",
+                ]
+
+                files = [uproot.open(sampleDict[samples[i]]["histFile"]) for i in range(len(samples))]
+                
+                for region in regions:
+                    print("            region = ", region)
+                    
+                    if region=="HE": range_end = 8
+                    else: range_end = 5
+                    
+                    for i in range(1, range_end):
+                    
+                        histograms = [files[j][f"leadJet_{region}_{category}ConstituentHcalDepthEF{i}"]
+                                      for j in range(len(samples))]
+                                      
+                        plotHcalDepthEFDistributions(
+                            sampleDict,
+                            histograms,
+                            samples,
+                            f"Lead Jet {category_names[k]} HCAL Energy Fraction (Depth  {i})",
+                            args.outdir,
+                            f"leadJet_{region}_{category}ConstituentHCalDepthEF{i}_mDark{mDark_val}_mMed{mMed_val}_{todaysDate}"
+                        )
+                        
+                    histograms = [files[j][f"leadJet_{region}_{category}ConstituentRawHoverE"]
+                                  for j in range(len(samples))]
+                                  
+                    plotHcalDepthEFDistributions(
+                        sampleDict,
+                        histograms,
+                        samples,
+                        f"Lead Jet {category_names[k]} Raw H Over E",
+                        args.outdir,
+                        f"leadJet_{region}_{category}ConstituentRawHoverE_mDark{mDark_val}_mMed{mMed_val}_{todaysDate}"
+                    )
+                    
+                    histograms = [files[j][f"leadJet_{region}_{category}ConstituentHoverE"]
+                                  for j in range(len(samples))]
+                                  
+                    plotHcalDepthEFDistributions(
+                        sampleDict,
+                        histograms,
+                        samples,
+                        f"Lead Jet {category_names[k]} H Over E",
+                        args.outdir,
+                        f"leadJet_{region}_{category}ConstituentHoverE_mDark{mDark_val}_mMed{mMed_val}_{todaysDate}"
+                    )
 
 
 ###################################################################################################

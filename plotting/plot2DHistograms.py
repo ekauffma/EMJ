@@ -47,15 +47,11 @@ def plotHCalDepthEFs(histograms, y_label, outdir, plot_filename, region, norm_me
     if region=="HE":
         hist_names = ["1", "2", "3", "4", "5", "6", "7"]
         depth_edges = np.array([1, 2, 5, 8, 11, 15, 19, 23])
-        #depth_edges = list(range(8))
         plotting_centers = (depth_edges[:-1] + depth_edges[1:]) / 2
-        #plotting_centers = np.arange(1, 8)-0.5
     else:
         hist_names = ["1", "2", "3", "4"]
         depth_edges = np.array([1, 2, 6, 11, 18])
-        #depth_edges = list(range(5))
         plotting_centers = (depth_edges[:-1] + depth_edges[1:]) / 2
-        #plotting_centers = np.arange(1, 5)-0.5
         
     bin_edges = histograms[0].axes[0].edges()
     bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
@@ -65,7 +61,6 @@ def plotHCalDepthEFs(histograms, y_label, outdir, plot_filename, region, norm_me
         pt_start = np.searchsorted(pt_bin_edges, pt_min, side="left") - 1
         pt_end = np.searchsorted(pt_bin_edges, pt_max, side="right") - 1
     
-    #X, Y = np.meshgrid(depth_edges[:-1], bin_edges)
     X, Y = np.meshgrid(depth_edges, bin_edges)
     if pt_min and pt_max:
         values_2d = np.array(
@@ -78,13 +73,15 @@ def plotHCalDepthEFs(histograms, y_label, outdir, plot_filename, region, norm_me
     if sum(sum(values_2d))==0: return
     masked_vals = np.ma.masked_where(values_2d == 0, values_2d)
     
-    sum_weights = np.sum(values_2d, axis=0)
-    sum_weighted_bins = np.sum(values_2d * bin_centers[:, None], axis=0)
+    values_2d_for_profile = values_2d[1:]  # remove the zero-th bin
+    bin_centers_for_profile = bin_centers[1:]
+    sum_weights = np.sum(values_2d_for_profile, axis=0)
+    sum_weighted_bins = np.sum(values_2d_for_profile * bin_centers_for_profile[:, None], axis=0)
     profile = np.divide(sum_weighted_bins, sum_weights, where=(sum_weights != 0))
     profile = np.nan_to_num(profile, nan=0.0, posinf=0.0, neginf=0.0)
     profile[(profile < 0) | (profile > 1)] = 0
 
-    sum_weighted_bins_sq = np.sum(values_2d * (bin_centers[:, None])**2, axis=0)
+    sum_weighted_bins_sq = np.sum(values_2d_for_profile * (bin_centers_for_profile[:, None])**2, axis=0)
     variance = np.divide(sum_weighted_bins_sq, sum_weights, where=(sum_weights != 0)) - profile**2
     variance = np.maximum(variance, 0)  # Ensure variance is non-negative
     stddev = np.sqrt(variance)
@@ -108,7 +105,6 @@ def plotHCalDepthEFs(histograms, y_label, outdir, plot_filename, region, norm_me
     pcm = ax_pcolormesh.pcolormesh(X, Y, masked_vals, shading="auto", cmap="plasma", norm=norm_method)
     ax_pcolormesh.set_ylabel(y_label, fontsize=18)
     ax_profile.set_xticks(plotting_centers)
-    #ax_pcolormesh.set_xticks(np.arange(len(hist_names)) + 0.5)
     
     fig.colorbar(pcm, cax=cax, orientation='vertical')
     
@@ -134,10 +130,8 @@ def main():
     
     hep.style.use("CMS")
     
-    pt_min_vals = [0,50,100,150,200,250]
-    pt_max_vals = [50,100,150,200,250,300]
-    pt_min_vals = []
-    pt_max_vals = []
+    pt_min_vals = [0,50,150,300]
+    pt_max_vals = [50,150,300,500]
 
     regions = ["HE", "HB"]
     

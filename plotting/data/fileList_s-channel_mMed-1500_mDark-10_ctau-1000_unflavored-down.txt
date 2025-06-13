@@ -7,4 +7,3 @@ root://cmseos.fnal.gov//store/user/ekauffma/EMJ/signal_ntuples/ntuple_s-channel_
 root://cmseos.fnal.gov//store/user/ekauffma/EMJ/signal_ntuples/ntuple_s-channel_mMed-1500_mDark-10_ctau-1000_unflavored-down_n-1000_part-6.root
 root://cmseos.fnal.gov//store/user/ekauffma/EMJ/signal_ntuples/ntuple_s-channel_mMed-1500_mDark-10_ctau-1000_unflavored-down_n-1000_part-7.root
 root://cmseos.fnal.gov//store/user/ekauffma/EMJ/signal_ntuples/ntuple_s-channel_mMed-1500_mDark-10_ctau-1000_unflavored-down_n-1000_part-8.root
-root://cmseos.fnal.gov//store/user/ekauffma/EMJ/signal_ntuples/ntuple_s-channel_mMed-1500_mDark-10_ctau-1000_unflavored-down_n-1000_part-9.root
