@@ -1,0 +1,11 @@
+root://cmseos.fnal.gov//store/group/lpcemj/EMJAnalysis2025/QCD_PT-3200_TuneCP5_13p6TeV_pythia8/Run3EMJJetStudy_QCD_PT-3200_20250616/250616_175414/0000/output_1.root
+root://cmseos.fnal.gov//store/group/lpcemj/EMJAnalysis2025/QCD_PT-3200_TuneCP5_13p6TeV_pythia8/Run3EMJJetStudy_QCD_PT-3200_20250616/250616_175414/0000/output_10.root
+root://cmseos.fnal.gov//store/group/lpcemj/EMJAnalysis2025/QCD_PT-3200_TuneCP5_13p6TeV_pythia8/Run3EMJJetStudy_QCD_PT-3200_20250616/250616_175414/0000/output_11.root
+root://cmseos.fnal.gov//store/group/lpcemj/EMJAnalysis2025/QCD_PT-3200_TuneCP5_13p6TeV_pythia8/Run3EMJJetStudy_QCD_PT-3200_20250616/250616_175414/0000/output_2.root
+root://cmseos.fnal.gov//store/group/lpcemj/EMJAnalysis2025/QCD_PT-3200_TuneCP5_13p6TeV_pythia8/Run3EMJJetStudy_QCD_PT-3200_20250616/250616_175414/0000/output_3.root
+root://cmseos.fnal.gov//store/group/lpcemj/EMJAnalysis2025/QCD_PT-3200_TuneCP5_13p6TeV_pythia8/Run3EMJJetStudy_QCD_PT-3200_20250616/250616_175414/0000/output_4.root
+root://cmseos.fnal.gov//store/group/lpcemj/EMJAnalysis2025/QCD_PT-3200_TuneCP5_13p6TeV_pythia8/Run3EMJJetStudy_QCD_PT-3200_20250616/250616_175414/0000/output_5.root
+root://cmseos.fnal.gov//store/group/lpcemj/EMJAnalysis2025/QCD_PT-3200_TuneCP5_13p6TeV_pythia8/Run3EMJJetStudy_QCD_PT-3200_20250616/250616_175414/0000/output_6.root
+root://cmseos.fnal.gov//store/group/lpcemj/EMJAnalysis2025/QCD_PT-3200_TuneCP5_13p6TeV_pythia8/Run3EMJJetStudy_QCD_PT-3200_20250616/250616_175414/0000/output_7.root
+root://cmseos.fnal.gov//store/group/lpcemj/EMJAnalysis2025/QCD_PT-3200_TuneCP5_13p6TeV_pythia8/Run3EMJJetStudy_QCD_PT-3200_20250616/250616_175414/0000/output_8.root
+root://cmseos.fnal.gov//store/group/lpcemj/EMJAnalysis2025/QCD_PT-3200_TuneCP5_13p6TeV_pythia8/Run3EMJJetStudy_QCD_PT-3200_20250616/250616_175414/0000/output_9.root

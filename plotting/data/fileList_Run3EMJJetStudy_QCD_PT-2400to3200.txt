@@ -1,0 +1,12 @@
+root://cmseos.fnal.gov//store/group/lpcemj/EMJAnalysis2025/QCD_PT-2400to3200_TuneCP5_13p6TeV_pythia8/Run3EMJJetStudy_QCD_PT-2400to3200_20250616/250616_175517/0000/output_1.root
+root://cmseos.fnal.gov//store/group/lpcemj/EMJAnalysis2025/QCD_PT-2400to3200_TuneCP5_13p6TeV_pythia8/Run3EMJJetStudy_QCD_PT-2400to3200_20250616/250616_175517/0000/output_11.root
+root://cmseos.fnal.gov//store/group/lpcemj/EMJAnalysis2025/QCD_PT-2400to3200_TuneCP5_13p6TeV_pythia8/Run3EMJJetStudy_QCD_PT-2400to3200_20250616/250616_175517/0000/output_12.root
+root://cmseos.fnal.gov//store/group/lpcemj/EMJAnalysis2025/QCD_PT-2400to3200_TuneCP5_13p6TeV_pythia8/Run3EMJJetStudy_QCD_PT-2400to3200_20250616/250616_175517/0000/output_14.root
+root://cmseos.fnal.gov//store/group/lpcemj/EMJAnalysis2025/QCD_PT-2400to3200_TuneCP5_13p6TeV_pythia8/Run3EMJJetStudy_QCD_PT-2400to3200_20250616/250616_175517/0000/output_15.root
+root://cmseos.fnal.gov//store/group/lpcemj/EMJAnalysis2025/QCD_PT-2400to3200_TuneCP5_13p6TeV_pythia8/Run3EMJJetStudy_QCD_PT-2400to3200_20250616/250616_175517/0000/output_16.root
+root://cmseos.fnal.gov//store/group/lpcemj/EMJAnalysis2025/QCD_PT-2400to3200_TuneCP5_13p6TeV_pythia8/Run3EMJJetStudy_QCD_PT-2400to3200_20250616/250616_175517/0000/output_17.root
+root://cmseos.fnal.gov//store/group/lpcemj/EMJAnalysis2025/QCD_PT-2400to3200_TuneCP5_13p6TeV_pythia8/Run3EMJJetStudy_QCD_PT-2400to3200_20250616/250616_175517/0000/output_18.root
+root://cmseos.fnal.gov//store/group/lpcemj/EMJAnalysis2025/QCD_PT-2400to3200_TuneCP5_13p6TeV_pythia8/Run3EMJJetStudy_QCD_PT-2400to3200_20250616/250616_175517/0000/output_20.root
+root://cmseos.fnal.gov//store/group/lpcemj/EMJAnalysis2025/QCD_PT-2400to3200_TuneCP5_13p6TeV_pythia8/Run3EMJJetStudy_QCD_PT-2400to3200_20250616/250616_175517/0000/output_4.root
+root://cmseos.fnal.gov//store/group/lpcemj/EMJAnalysis2025/QCD_PT-2400to3200_TuneCP5_13p6TeV_pythia8/Run3EMJJetStudy_QCD_PT-2400to3200_20250616/250616_175517/0000/output_5.root
+root://cmseos.fnal.gov//store/group/lpcemj/EMJAnalysis2025/QCD_PT-2400to3200_TuneCP5_13p6TeV_pythia8/Run3EMJJetStudy_QCD_PT-2400to3200_20250616/250616_175517/0000/output_6.root
